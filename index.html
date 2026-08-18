@@ -183,15 +183,9 @@
     }
     .pano-loading.hidden{opacity:0;visibility:hidden}
     .pano-loading-inner{width:min(280px,70%);text-align:center}
-    .pano-loading-spinner{
-      width:38px;height:38px;margin:0 auto 13px;border:3px solid rgba(255,255,255,.16);
-      border-top-color:var(--gold);border-radius:50%;animation:pano-spin .8s linear infinite
-    }
     .pano-loading strong{display:block;margin-bottom:9px;font-size:13px;font-weight:500}
     .pano-loading-track{height:4px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
     .pano-loading-bar{display:block;width:4%;height:100%;border-radius:inherit;background:var(--gold);transition:width .2s}
-    .pano-loading small{display:block;margin-top:8px;color:#aeb9ba;font-size:10px}
-    @keyframes pano-spin{to{transform:rotate(360deg)}}
     .pano-scene-badge{
       position:absolute;z-index:12;right:12px;top:12px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);
       border-radius:999px;background:rgba(9,15,18,.72);backdrop-filter:blur(8px);color:#fff;font-size:11px;pointer-events:none
@@ -695,10 +689,8 @@
         <div class="pano-viewer"><div id="panoViewer" aria-label="${node.name}全景图"></div></div>
         <div class="pano-loading" id="panoLoading" aria-live="polite">
           <div class="pano-loading-inner">
-            <span class="pano-loading-spinner"></span>
-            <strong id="panoLoadingText">正在加载手机优化全景…</strong>
+            <strong id="panoLoadingText">正在加载全景…</strong>
             <div class="pano-loading-track"><span class="pano-loading-bar" id="panoLoadingBar"></span></div>
-            <small>首次打开需要下载图片，之后切换会更快</small>
           </div>
         </div>
         <div class="pano-scene-badge" id="panoSceneBadge"></div>
@@ -794,7 +786,7 @@
     const text=document.getElementById("panoLoadingText");
     if(loading) loading.classList.remove("hidden");
     if(bar) bar.style.width=`${Math.max(4,Math.min(100,Math.round(progress)))}%`;
-    if(text) text.textContent=progress>=100?"正在生成全景画面…":`正在加载${useMobilePanorama?"手机优化":"高清"}全景…`;
+    if(text) text.textContent="正在加载全景…";
   }
 
   function hidePanoramaLoading(){
