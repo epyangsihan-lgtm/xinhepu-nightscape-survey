@@ -276,10 +276,13 @@
 
     @media(max-width:860px){
       .nav button:not(.keep){display:none}
-      .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh}
-      .topbar{left:12px;right:12px;top:12px}
-      .detail{top:88px;right:12px;bottom:12px}
+      .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+      .topbar{left:12px;right:12px;top:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.24)}
+      .detail{top:88px;right:12px;bottom:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+      .custom-marker .halo{animation:none;transform:scale(.9);opacity:.3}
+      .custom-marker .core{box-shadow:0 0 7px rgba(232,184,106,.72)}
     }
+    @media(prefers-reduced-motion:reduce){.custom-marker .halo{animation:none}}
     @media(max-width:520px){
       .topbar{height:58px;padding:0 12px}
       .brand p{display:none}
@@ -531,6 +534,7 @@
   let researchNode = null;
   let activePanoViewer = null;
   let currentPanoramaSceneIndex = 0;
+  const compactMapMode=window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
 
   function sceneSvg(type,title=""){
     const palettes={
@@ -569,13 +573,23 @@
   function initMap(){
     try{
       map=new AMap.Map("map",{
-        zoom:16,
-        center:[113.29185,23.12125],
+        zoom:16.2,
+        zooms:[15,18],
+        center:[113.29455,23.11945],
         viewMode:"2D",
         mapStyle:"amap://styles/darkblue",
         resizeEnable:true,
-        showLabel:true
+        showLabel:true,
+        features:["bg","road","building"],
+        animateEnable:!compactMapMode,
+        jogEnable:!compactMapMode,
+        rotateEnable:false,
+        pitchEnable:false
       });
+      map.setLimitBounds(new AMap.Bounds(
+        [113.2878,23.1145],
+        [113.3015,23.1248]
+      ));
       map.on("complete",()=>{
         document.getElementById("mapError").classList.remove("show");
       });
