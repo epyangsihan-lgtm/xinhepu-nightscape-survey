@@ -265,9 +265,6 @@
     }
 
     .custom-marker{position:relative;width:32px;height:32px}
-    .custom-marker .halo{
-      position:absolute;inset:0;border-radius:50%;background:rgba(232,184,106,.18);animation:pulse 2.4s infinite
-    }
     .custom-marker .core{
       position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;
       background:var(--gold);border:2px solid rgba(255,255,255,.85);box-shadow:0 0 14px rgba(232,184,106,.95)
@@ -276,22 +273,20 @@
       white-space:nowrap;pointer-events:none;user-select:none;text-shadow:0 1px 3px #061015,0 0 8px #061015
     }
     .map-context-label.road{color:#6fcfe0;font-size:11px;letter-spacing:.08em}
+    .map-context-label.poi{color:#a9c0c6;font-size:10px;font-weight:500}
     .map-context-label.landmark{
       padding:3px 7px;border:1px solid rgba(232,184,106,.28);border-radius:7px;
       background:rgba(10,18,22,.76);color:#f0dfc3;font-size:10px;box-shadow:0 3px 10px rgba(0,0,0,.28)
     }
-    @keyframes pulse{0%,100%{transform:scale(.8);opacity:.8}50%{transform:scale(1.45);opacity:.16}}
 
     @media(max-width:860px){
       .nav button:not(.keep){display:none}
       .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
       .topbar{left:12px;right:12px;top:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.24)}
       .detail{top:88px;right:12px;bottom:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
-      .custom-marker .halo{animation:none;transform:scale(.9);opacity:.3}
       .custom-marker .core{box-shadow:0 0 7px rgba(232,184,106,.72)}
-      .map-context-label.road{font-size:10px}.map-context-label.landmark{font-size:9px;padding:2px 5px}
+      .map-context-label.road{font-size:10px}.map-context-label.poi{font-size:9px}.map-context-label.landmark{font-size:9px;padding:2px 5px}
     }
-    @media(prefers-reduced-motion:reduce){.custom-marker .halo{animation:none}}
     @media(max-width:520px){
       .topbar{height:58px;padding:0 12px}
       .brand p{display:none}
@@ -554,7 +549,12 @@
     {text:"中共三大会址纪念馆",type:"landmark",position:[113.29608,23.11894]},
     {text:"简园",type:"landmark",position:[113.29695,23.11880]},
     {text:"培正中学",type:"landmark",position:[113.29899,23.11970]},
-    {text:"新河浦涌",type:"landmark",position:[113.29089,23.11950]}
+    {text:"新河浦涌",type:"landmark",position:[113.29089,23.11950]},
+    {text:"东山口地铁站",type:"poi",position:[113.29675,23.12335]},
+    {text:"越秀区图书馆",type:"poi",position:[113.29470,23.12435]},
+    {text:"广州七中高中部",type:"poi",position:[113.29910,23.12245]},
+    {text:"东山培正小学",type:"poi",position:[113.29810,23.12075]},
+    {text:"东山肉菜市场",type:"poi",position:[113.29455,23.12010]}
   ];
 
   function sceneSvg(type,title=""){
@@ -626,7 +626,7 @@
   function markerContent(){
     const el=document.createElement("div");
     el.className="custom-marker";
-    el.innerHTML=`<span class="halo"></span><span class="core"></span>`;
+    el.innerHTML=`<span class="core"></span>`;
     return el;
   }
 
