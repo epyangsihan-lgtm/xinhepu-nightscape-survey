@@ -272,6 +272,14 @@
       position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;
       background:var(--gold);border:2px solid rgba(255,255,255,.85);box-shadow:0 0 14px rgba(232,184,106,.95)
     }
+    .map-context-label{
+      white-space:nowrap;pointer-events:none;user-select:none;text-shadow:0 1px 3px #061015,0 0 8px #061015
+    }
+    .map-context-label.road{color:#6fcfe0;font-size:11px;letter-spacing:.08em}
+    .map-context-label.landmark{
+      padding:3px 7px;border:1px solid rgba(232,184,106,.28);border-radius:7px;
+      background:rgba(10,18,22,.76);color:#f0dfc3;font-size:10px;box-shadow:0 3px 10px rgba(0,0,0,.28)
+    }
     @keyframes pulse{0%,100%{transform:scale(.8);opacity:.8}50%{transform:scale(1.45);opacity:.16}}
 
     @media(max-width:860px){
@@ -281,6 +289,7 @@
       .detail{top:88px;right:12px;bottom:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
       .custom-marker .halo{animation:none;transform:scale(.9);opacity:.3}
       .custom-marker .core{box-shadow:0 0 7px rgba(232,184,106,.72)}
+      .map-context-label.road{font-size:10px}.map-context-label.landmark{font-size:9px;padding:2px 5px}
     }
     @media(prefers-reduced-motion:reduce){.custom-marker .halo{animation:none}}
     @media(max-width:520px){
@@ -529,12 +538,24 @@
   let map = null;
   let markerMap = new Map();
   let routeOverlays = [];
+  let contextLabelOverlays = [];
   let currentCategory = "全部";
   let activeNode = null;
   let researchNode = null;
   let activePanoViewer = null;
   let currentPanoramaSceneIndex = 0;
   const compactMapMode=window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
+  const mapContextLabels=[
+    {text:"东华东路",type:"road",position:[113.2910,23.11825]},
+    {text:"署前路",type:"road",position:[113.29525,23.12095]},
+    {text:"庙前直街",type:"road",position:[113.29635,23.12155]},
+    {text:"培正路",type:"road",position:[113.29745,23.12195]},
+    {text:"新河浦三横路",type:"road",position:[113.29755,23.11675]},
+    {text:"中共三大会址纪念馆",type:"landmark",position:[113.29608,23.11894]},
+    {text:"简园",type:"landmark",position:[113.29695,23.11880]},
+    {text:"培正中学",type:"landmark",position:[113.29899,23.11970]},
+    {text:"新河浦涌",type:"landmark",position:[113.29089,23.11950]}
+  ];
 
   function sceneSvg(type,title=""){
     const palettes={
@@ -593,6 +614,7 @@
       map.on("complete",()=>{
         document.getElementById("mapError").classList.remove("show");
       });
+      createContextLabels();
       createMarkers();
       renderAll();
     }catch(e){
@@ -606,6 +628,23 @@
     el.className="custom-marker";
     el.innerHTML=`<span class="halo"></span><span class="core"></span>`;
     return el;
+  }
+
+  function createContextLabels(){
+    contextLabelOverlays.forEach(label=>map.remove(label));
+    contextLabelOverlays=mapContextLabels.map(item=>{
+      const content=document.createElement("div");
+      content.className=`map-context-label ${item.type}`;
+      content.textContent=item.text;
+      return new AMap.Marker({
+        position:item.position,
+        content,
+        anchor:"center",
+        zIndex:item.type==="road"?55:65,
+        bubble:false
+      });
+    });
+    map.add(contextLabelOverlays);
   }
 
   function createMarkers(){
