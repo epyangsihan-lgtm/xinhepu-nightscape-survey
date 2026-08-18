@@ -176,6 +176,22 @@
     .pano-stage{position:relative}
     .pano-viewer{height:clamp(420px,calc(100vh - 250px),760px);border-radius:14px;overflow:hidden;background:#0b1215;border:1px solid var(--line)}
     .pano-viewer iframe,.pano-viewer #panoViewer{width:100%;height:100%;border:0}
+    .pano-loading{
+      position:absolute;z-index:11;inset:0;display:grid;place-items:center;border-radius:14px;
+      background:radial-gradient(circle at center,rgba(31,47,52,.72),rgba(8,14,17,.92));
+      color:#f5efe5;transition:opacity .25s,visibility .25s;pointer-events:none
+    }
+    .pano-loading.hidden{opacity:0;visibility:hidden}
+    .pano-loading-inner{width:min(280px,70%);text-align:center}
+    .pano-loading-spinner{
+      width:38px;height:38px;margin:0 auto 13px;border:3px solid rgba(255,255,255,.16);
+      border-top-color:var(--gold);border-radius:50%;animation:pano-spin .8s linear infinite
+    }
+    .pano-loading strong{display:block;margin-bottom:9px;font-size:13px;font-weight:500}
+    .pano-loading-track{height:4px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
+    .pano-loading-bar{display:block;width:4%;height:100%;border-radius:inherit;background:var(--gold);transition:width .2s}
+    .pano-loading small{display:block;margin-top:8px;color:#aeb9ba;font-size:10px}
+    @keyframes pano-spin{to{transform:rotate(360deg)}}
     .pano-scene-badge{
       position:absolute;z-index:12;right:12px;top:12px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);
       border-radius:999px;background:rgba(9,15,18,.72);backdrop-filter:blur(8px);color:#fff;font-size:11px;pointer-events:none
@@ -209,7 +225,13 @@
     .survey-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:4px}
     .survey-actions button{width:auto;margin:0;padding:11px 18px}
     .thanks{text-align:center;padding:34px 10px 18px}.thanks h3{margin:0;color:var(--gold2);font-size:22px}.thanks p{color:var(--muted);font-size:13px;line-height:1.7}
-    @media(max-width:560px){.pano-viewer{height:300px}.ground-nav{bottom:52px}.ground-arrow{width:48px;height:56px}.form-grid{grid-template-columns:1fr}.research-head{padding-left:18px}.research-body{padding:18px}.likert{gap:4px}.likert label{font-size:10px;padding:8px 1px}}
+    @media(max-width:560px){
+      .pano-viewer{height:clamp(430px,62dvh,590px)}
+      .ground-nav{bottom:52px}.ground-arrow{width:48px;height:56px}
+      .form-grid{grid-template-columns:1fr}.research-head{padding-left:18px}.research-body{padding:12px}
+      .pano-help{margin-top:8px;line-height:1.5}.research-body>.primary{margin-top:12px}
+      .likert{gap:4px}.likert label{font-size:10px;padding:8px 1px}
+    }
 
     .intro{
       position:absolute;z-index:1100;inset:0;display:grid;place-items:center;
@@ -671,13 +693,21 @@
     document.getElementById("researchBody").innerHTML=`
       <div class="pano-stage">
         <div class="pano-viewer"><div id="panoViewer" aria-label="${node.name}全景图"></div></div>
+        <div class="pano-loading" id="panoLoading" aria-live="polite">
+          <div class="pano-loading-inner">
+            <span class="pano-loading-spinner"></span>
+            <strong id="panoLoadingText">正在加载手机优化全景…</strong>
+            <div class="pano-loading-track"><span class="pano-loading-bar" id="panoLoadingBar"></span></div>
+            <small>首次打开需要下载图片，之后切换会更快</small>
+          </div>
+        </div>
         <div class="pano-scene-badge" id="panoSceneBadge"></div>
         <div class="ground-nav" id="groundNav">
           <button class="ground-arrow next" id="panoNext" type="button" onclick="switchPanoramaScene(1)" aria-label="进入下一张全景" title="进入下一张全景"></button>
           <button class="ground-arrow prev" id="panoPrev" type="button" onclick="switchPanoramaScene(-1)" aria-label="退回上一张全景" title="退回上一张全景"></button>
         </div>
       </div>
-      <p class="pano-help">拖动鼠标（或手指）可以环视，滚轮可以缩放；点击画面中的向前或向后箭头切换相邻全景。</p>
+      <p class="pano-help">拖动鼠标（或手指）可以环视，滚轮可以缩放；手机会自动使用轻量全景，当前画面完成后会预加载下一张。</p>
       <button class="primary" onclick="openWjxSurvey()">漫游完毕，回答问卷</button>`;
     document.getElementById("researchModal").classList.add("open");
     updatePanoramaNavigation(node);
@@ -715,14 +745,78 @@
       }
       const embedded=window.XINHEPU_EMBEDDED_PANOS&&window.XINHEPU_EMBEDDED_PANOS[node.id];
       const scene=getCurrentPanoramaScene(node);
+      const panoramaSource=embedded||getOptimizedPanoramaUrl(scene.panoramaUrl||node.panoramaUrl);
+      showPanoramaLoading(4);
       activePanoViewer=new PhotoSphereViewer.Viewer({
-        container,panorama:embedded||scene.panoramaUrl||node.panoramaUrl,
+        container,panorama:panoramaSource,
         navbar:["autorotate","zoom","fullscreen"],
         mousewheel:true,mousemove:true,
         minFov:30,maxFov:78,defaultZoomLvl:42,autorotateZoomLvl:42,
         defaultLong:scene.longitude||0
       });
+      activePanoViewer.on("load-progress",(...args)=>{
+        const progress=[...args].reverse().find(value=>typeof value==="number");
+        if(Number.isFinite(progress)) showPanoramaLoading(progress);
+      });
+      const onPanoramaReady=()=>{
+        hidePanoramaLoading();
+        preloadAdjacentPanorama(node);
+      };
+      activePanoViewer.on("ready",onPanoramaReady);
+      activePanoViewer.on("panorama-loaded",onPanoramaReady);
     });
+  }
+
+  function browserSupportsWebP(){
+    try{
+      const canvas=document.createElement("canvas");
+      canvas.width=canvas.height=1;
+      return canvas.toDataURL("image/webp").startsWith("data:image/webp");
+    }catch(error){return false}
+  }
+
+  const panoramaWebpSupported=browserSupportsWebP();
+  const panoramaConnection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const useMobilePanorama=window.matchMedia("(max-width: 820px)").matches||
+    Math.min(window.screen.width,window.screen.height)<=820||
+    Boolean(panoramaConnection&&(/2g/.test(panoramaConnection.effectiveType||"")||panoramaConnection.saveData));
+  const preloadedPanoramas=new Map();
+
+  function getOptimizedPanoramaUrl(url){
+    if(!panoramaWebpSupported||!/^assets\/panoramas\/.+\.jpg(?:\?.*)?$/i.test(url||"")) return url;
+    const suffix=useMobilePanorama?"_mobile.webp":"_desktop.webp";
+    return url.replace(/\.jpg(?=\?|$)/i,suffix);
+  }
+
+  function showPanoramaLoading(progress=4){
+    const loading=document.getElementById("panoLoading");
+    const bar=document.getElementById("panoLoadingBar");
+    const text=document.getElementById("panoLoadingText");
+    if(loading) loading.classList.remove("hidden");
+    if(bar) bar.style.width=`${Math.max(4,Math.min(100,Math.round(progress)))}%`;
+    if(text) text.textContent=progress>=100?"正在生成全景画面…":`正在加载${useMobilePanorama?"手机优化":"高清"}全景…`;
+  }
+
+  function hidePanoramaLoading(){
+    const loading=document.getElementById("panoLoading");
+    if(loading) loading.classList.add("hidden");
+  }
+
+  function preloadAdjacentPanorama(node){
+    if(panoramaConnection&&panoramaConnection.saveData) return;
+    const tour=getPanoramaTour(node);
+    const next=tour[currentPanoramaSceneIndex+1];
+    if(!next) return;
+    const url=getOptimizedPanoramaUrl(next.panoramaUrl||node.panoramaUrl);
+    if(!url||preloadedPanoramas.has(url)) return;
+    const preload=()=>{
+      const image=new Image();
+      image.decoding="async";
+      image.src=url;
+      preloadedPanoramas.set(url,image);
+    };
+    if("requestIdleCallback" in window) requestIdleCallback(preload,{timeout:1800});
+    else setTimeout(preload,600);
   }
 
   function getPanoramaTour(node){
@@ -746,14 +840,25 @@
     if(next) next.disabled=currentPanoramaSceneIndex===tour.length-1;
   }
 
-  function switchPanoramaScene(direction){
+  async function switchPanoramaScene(direction){
     if(!researchNode) return;
     const tour=getPanoramaTour(researchNode);
     const target=Math.max(0,Math.min(tour.length-1,currentPanoramaSceneIndex+direction));
     if(target===currentPanoramaSceneIndex) return;
     currentPanoramaSceneIndex=target;
-    destroyPanoViewer();
     updatePanoramaNavigation(researchNode);
+    const scene=getCurrentPanoramaScene(researchNode);
+    const source=getOptimizedPanoramaUrl(scene.panoramaUrl||researchNode.panoramaUrl);
+    if(activePanoViewer&&typeof activePanoViewer.setPanorama==="function"){
+      showPanoramaLoading(4);
+      try{
+        await activePanoViewer.setPanorama(source,{longitude:scene.longitude||0},false);
+        hidePanoramaLoading();
+        preloadAdjacentPanorama(researchNode);
+        return;
+      }catch(error){console.warn("优化全景切换失败，尝试重新载入。",error)}
+    }
+    destroyPanoViewer();
     renderPanorama(researchNode);
   }
 
