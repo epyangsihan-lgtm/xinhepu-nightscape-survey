@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="新河浦夜间光景地图：沿着光，重新认识新河浦。" />
+  <title>新河浦夜间光景地图</title>
+  <link rel="stylesheet" href="assets/vendor/photo-sphere-viewer/photo-sphere-viewer.min.css" />
+
+  <style>
+    :root{
+      --bg:#0f1519;
+      --panel:rgba(17,24,28,.94);
+      --panel2:#182126;
+      --text:#f5efe5;
+      --muted:#aab4b7;
+      --line:rgba(255,255,255,.10);
+      --gold:#e8b86a;
+      --gold2:#ffdaa0;
+      --shadow:0 18px 60px rgba(0,0,0,.38);
+      --radius:18px;
+      --sidebar:350px;
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    }
+    button,input{font:inherit}
+    button{color:inherit}
+    #app{position:relative;width:100%;height:100%}
+    #map{position:absolute;inset:0;background:#0e1418}
+
+    .topbar{
+      position:absolute;z-index:900;left:18px;right:18px;top:18px;height:64px;
+      padding:0 18px;display:flex;align-items:center;justify-content:space-between;
+      border:1px solid var(--line);border-radius:18px;
+      background:rgba(13,19,23,.80);backdrop-filter:blur(18px);box-shadow:var(--shadow)
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-mark{
+      width:38px;height:38px;border-radius:12px;position:relative;
+      background:radial-gradient(circle at 50% 42%,#ffe0a5 0 8%,#e8b86a 10% 23%,rgba(232,184,106,.18) 25% 60%,transparent 62%);
+      border:1px solid rgba(232,184,106,.35)
+    }
+    .brand-mark:after{
+      content:"";position:absolute;left:15px;top:10px;width:8px;height:17px;border-radius:8px 8px 2px 2px;
+      background:#efc475;box-shadow:0 0 16px rgba(239,196,117,.85)
+    }
+    .brand h1{font-size:17px;margin:0;letter-spacing:.08em;font-weight:650}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:11px;letter-spacing:.08em}
+    .nav{display:flex;gap:8px}
+    .nav button{
+      border:0;background:transparent;padding:9px 12px;border-radius:10px;color:#c4cdcf;cursor:pointer;font-size:13px
+    }
+    .nav button:hover,.nav button.active{background:rgba(255,255,255,.075);color:#fff}
+
+    .sidebar{
+      position:absolute;z-index:850;left:18px;top:96px;bottom:18px;width:var(--sidebar);
+      display:flex;flex-direction:column;overflow:hidden;
+      border:1px solid var(--line);border-radius:var(--radius);
+      background:var(--panel);backdrop-filter:blur(20px);box-shadow:var(--shadow)
+    }
+    .sidebar-head{padding:18px;border-bottom:1px solid var(--line)}
+    .eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+    .sidebar-title{font-size:22px;line-height:1.25;margin:5px 0;font-family:"Songti SC","Noto Serif SC",serif;font-weight:600}
+    .sidebar-desc{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
+    .tabbar{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:12px;border-bottom:1px solid var(--line)}
+    .tabbar button{
+      border:0;background:transparent;padding:9px 4px;border-radius:10px;color:#aeb7b8;cursor:pointer;font-size:12px
+    }
+    .tabbar button.active{
+      color:#fff;background:rgba(232,184,106,.12);box-shadow:inset 0 0 0 1px rgba(232,184,106,.18)
+    }
+    .panel-content{flex:1;min-height:0;overflow:auto;scrollbar-width:thin}
+    .panel{display:none;padding:14px}
+    .panel.active{display:block}
+    .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+    .chip{
+      flex:none;border:1px solid var(--line);border-radius:999px;padding:7px 10px;
+      background:rgba(255,255,255,.025);color:#b7c0c1;cursor:pointer;font-size:11px
+    }
+    .chip.active,.chip:hover{background:var(--gold);border-color:var(--gold);color:#171d20}
+
+    .node-list{display:grid;gap:10px}
+    .node-card,.route-card,.layer-card{
+      border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.028)
+    }
+    .node-card{
+      display:grid;grid-template-columns:86px 1fr;gap:12px;padding:10px;cursor:pointer;transition:.2s ease
+    }
+    .node-card:hover,.node-card.active{
+      transform:translateY(-1px);border-color:rgba(232,184,106,.42);background:rgba(232,184,106,.065)
+    }
+    .node-thumb{width:86px;height:78px;border-radius:10px;overflow:hidden;background:#202a2f}
+    .node-thumb svg{width:100%;height:100%;display:block}
+    .node-meta h3{margin:2px 0 4px;font-size:14px}
+    .node-meta p{
+      margin:0;color:var(--muted);font-size:11px;line-height:1.55;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+    }
+    .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+    .tag{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.06);color:#bdc5c6;font-size:9px}
+
+    .route-card,.layer-card{padding:14px;margin-bottom:10px}
+    .route-card{cursor:pointer;transition:.2s}
+    .route-card:hover,.route-card.active{border-color:rgba(232,184,106,.4);background:rgba(232,184,106,.06)}
+    .route-top,.layer-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .route-card h3,.layer-card h3{margin:0;font-size:14px}
+    .route-card p,.layer-card p{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+    .route-stats{margin-top:10px;display:flex;gap:12px;color:#d7c19e;font-size:10px}
+    .toggle{position:relative;flex:none;width:40px;height:22px;border-radius:999px;background:#354045;cursor:pointer}
+    .toggle:after{
+      content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#cbd1d2;transition:.2s
+    }
+    .toggle.active{background:var(--gold)}
+    .toggle.active:after{transform:translateX(18px);background:#192024}
+
+    .detail{
+      position:absolute;z-index:880;right:18px;top:96px;bottom:18px;width:min(410px,calc(100vw - 36px));
+      transform:translateX(calc(100% + 32px));transition:transform .34s cubic-bezier(.2,.85,.25,1);
+      border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+      background:rgba(17,24,28,.97);backdrop-filter:blur(20px);box-shadow:var(--shadow)
+    }
+    .detail.open{transform:translateX(0)}
+    .detail-scroll{height:100%;overflow:auto;padding-bottom:20px}
+    .hero{position:relative;height:220px;overflow:hidden;background:#263136}
+    .hero svg{width:100%;height:100%;display:block}
+    .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,18,21,.92) 0,transparent 58%)}
+    .close{
+      position:absolute;z-index:3;right:12px;top:12px;width:34px;height:34px;border-radius:50%;
+      border:1px solid rgba(255,255,255,.15);background:rgba(8,13,15,.65);cursor:pointer;font-size:18px
+    }
+    .hero-caption{position:absolute;z-index:2;left:18px;right:18px;bottom:16px}
+    .hero-caption h2{margin:5px 0 0;font-size:25px;font-family:"Songti SC","Noto Serif SC",serif}
+    .body{padding:18px}
+    .lead{margin:0;color:#e8e2d8;line-height:1.8;font-size:13px}
+    .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+    .fact{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025)}
+    .fact b{display:block;margin-bottom:3px;color:var(--gold2);font-size:12px}
+    .fact span{color:var(--muted);font-size:9px}
+    .section{padding-top:16px;margin-top:16px;border-top:1px solid var(--line)}
+    .section h3{margin:0 0 8px;color:var(--gold2);font-size:13px}
+    .section p{margin:0;color:#bdc6c7;font-size:12px;line-height:1.8}
+    .primary{
+      width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;
+      background:var(--gold);color:#171d20;cursor:pointer;font-weight:650
+    }
+    .secondary{
+      width:100%;margin-top:9px;padding:10px;border:1px solid var(--line);border-radius:12px;
+      background:rgba(255,255,255,.04);color:#d9dedc;cursor:pointer;font-size:12px
+    }
+    .research-note{margin:14px 0 0;color:var(--muted);font-size:11px;line-height:1.65}
+
+    .research-modal{
+      position:fixed;z-index:1500;inset:0;display:none;place-items:center;padding:10px;
+      background:rgba(5,9,11,.80);backdrop-filter:blur(8px)
+    }
+    .research-modal.open{display:grid}
+    .research-card{
+      position:relative;width:min(1280px,calc(100vw - 20px));max-height:calc(100vh - 20px);
+      overflow:auto;border:1px solid rgba(255,255,255,.15);border-radius:20px;
+      background:#131c20;box-shadow:var(--shadow)
+    }
+    .research-head{padding:14px 56px 12px 22px;border-bottom:1px solid var(--line)}
+    .research-head h2{margin:0;font-size:24px;font-family:"Songti SC","Noto Serif SC",serif}
+    .modal-close{position:absolute;right:16px;top:16px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.05);cursor:pointer;font-size:19px}
+    .research-progress{display:flex;gap:8px;margin-top:8px}
+    .research-step{display:flex;align-items:center;gap:6px;color:#829093;font-size:11px}
+    .research-step i{width:20px;height:20px;display:grid;place-items:center;border-radius:50%;font-style:normal;background:#344045;color:#d8dddd}
+    .research-step.active,.research-step.done{color:var(--gold2)}
+    .research-step.active i,.research-step.done i{background:var(--gold);color:#182024}
+    .research-body{padding:18px 22px 22px}
+    .pano-stage{position:relative}
+    .pano-viewer{height:clamp(420px,calc(100vh - 250px),760px);border-radius:14px;overflow:hidden;background:#0b1215;border:1px solid var(--line)}
+    .pano-viewer iframe,.pano-viewer #panoViewer{width:100%;height:100%;border:0}
+    .pano-scene-badge{
+      position:absolute;z-index:12;right:12px;top:12px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);
+      border-radius:999px;background:rgba(9,15,18,.72);backdrop-filter:blur(8px);color:#fff;font-size:11px;pointer-events:none
+    }
+    .ground-nav{
+      position:absolute;z-index:12;left:50%;bottom:58px;transform:translateX(-50%);
+      display:flex;flex-direction:column;align-items:center;gap:5px;pointer-events:none
+    }
+    .ground-arrow{
+      width:58px;height:66px;padding:0;border:0;clip-path:polygon(50% 0,100% 43%,73% 43%,73% 100%,27% 100%,27% 43%,0 43%);
+      background:rgba(255,255,255,.88);filter:drop-shadow(0 4px 5px rgba(0,0,0,.55));cursor:pointer;pointer-events:auto;
+      transform:perspective(150px) rotateX(54deg);transition:opacity .2s,background .2s,filter .2s
+    }
+    .ground-arrow:hover{background:var(--gold2);filter:drop-shadow(0 4px 8px rgba(0,0,0,.75))}
+    .ground-arrow.prev{transform:perspective(150px) rotateX(54deg) rotate(180deg)}
+    .ground-arrow:disabled{opacity:.22;cursor:not-allowed;pointer-events:none}
+    .pano-help{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.7}
+    .survey-form{display:grid;gap:20px}
+    .survey-intro{margin:0;color:#bdc6c7;font-size:13px;line-height:1.75}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .field label,.question legend{display:block;margin-bottom:7px;color:#e8e2d8;font-size:12px}
+    .field input,.field select,.field textarea{
+      width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#0e1518;color:#f5efe5;outline:none
+    }
+    .field textarea{min-height:76px;resize:vertical}
+    .question{margin:0;padding:0;border:0}
+    .likert{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+    .likert label{position:relative;padding:9px 3px;border:1px solid var(--line);border-radius:9px;text-align:center;color:#aeb9ba;cursor:pointer;font-size:11px}
+    .likert input{position:absolute;opacity:0;pointer-events:none}
+    .likert label:has(input:checked){border-color:var(--gold);background:rgba(232,184,106,.15);color:var(--gold2)}
+    .survey-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:4px}
+    .survey-actions button{width:auto;margin:0;padding:11px 18px}
+    .thanks{text-align:center;padding:34px 10px 18px}.thanks h3{margin:0;color:var(--gold2);font-size:22px}.thanks p{color:var(--muted);font-size:13px;line-height:1.7}
+    @media(max-width:560px){.pano-viewer{height:300px}.ground-nav{bottom:52px}.ground-arrow{width:48px;height:56px}.form-grid{grid-template-columns:1fr}.research-head{padding-left:18px}.research-body{padding:18px}.likert{gap:4px}.likert label{font-size:10px;padding:8px 1px}}
+
+    .intro{
+      position:absolute;z-index:1100;inset:0;display:grid;place-items:center;
+      background:radial-gradient(circle at 62% 42%,rgba(232,184,106,.12),transparent 25%),rgba(8,12,14,.86);
+      backdrop-filter:blur(7px);transition:.35s
+    }
+    .intro.hidden{opacity:0;visibility:hidden}
+    .intro-card{
+      width:min(640px,calc(100vw - 36px));padding:42px;border:1px solid rgba(255,255,255,.13);
+      border-radius:24px;background:rgba(20,27,31,.88);box-shadow:var(--shadow);text-align:center
+    }
+    .intro-symbol{
+      width:76px;height:76px;margin:0 auto 18px;border-radius:50%;
+      background:radial-gradient(circle,rgba(255,218,156,.95) 0 6%,rgba(232,184,106,.58) 8% 20%,rgba(232,184,106,.12) 22% 54%,transparent 56%)
+    }
+    .intro h2{margin:0;font-size:clamp(30px,5vw,48px);letter-spacing:.08em;font-family:"Songti SC","Noto Serif SC",serif;font-weight:500}
+    .intro .sub{margin:9px 0 0;color:var(--gold);letter-spacing:.32em;font-size:12px}
+    .intro p{max-width:500px;margin:22px auto;color:var(--muted);line-height:1.9;font-size:13px}
+    .intro button{
+      min-width:180px;padding:12px 20px;border:0;border-radius:999px;background:var(--gold);color:#171c1e;cursor:pointer;font-weight:650
+    }
+
+    .map-error{
+      position:absolute;z-index:1050;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:min(520px,calc(100vw - 36px));padding:24px;border:1px solid rgba(232,184,106,.25);
+      border-radius:18px;background:rgba(17,24,28,.96);box-shadow:var(--shadow);display:none
+    }
+    .map-error.show{display:block}
+    .map-error h3{margin:0 0 8px;color:var(--gold2)}
+    .map-error p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.7}
+    .map-error input{
+      width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+      background:#10171b;color:#fff;outline:none
+    }
+    .map-error button{
+      margin-top:10px;width:100%;padding:10px;border:0;border-radius:10px;background:var(--gold);color:#171d20;cursor:pointer;font-weight:650
+    }
+
+    .custom-marker{position:relative;width:32px;height:32px}
+    .custom-marker .halo{
+      position:absolute;inset:0;border-radius:50%;background:rgba(232,184,106,.18);animation:pulse 2.4s infinite
+    }
+    .custom-marker .core{
+      position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;
+      background:var(--gold);border:2px solid rgba(255,255,255,.85);box-shadow:0 0 14px rgba(232,184,106,.95)
+    }
+    @keyframes pulse{0%,100%{transform:scale(.8);opacity:.8}50%{transform:scale(1.45);opacity:.16}}
+
+    @media(max-width:860px){
+      .nav button:not(.keep){display:none}
+      .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh}
+      .topbar{left:12px;right:12px;top:12px}
+      .detail{top:88px;right:12px;bottom:12px}
+    }
+    @media(max-width:520px){
+      .topbar{height:58px;padding:0 12px}
+      .brand p{display:none}
+      .brand h1{font-size:14px}
+      .brand-mark{width:34px;height:34px}
+      .sidebar-head{display:none}
+      .sidebar{height:52vh}
+      .node-card{grid-template-columns:76px 1fr}
+      .node-thumb{width:76px}
+      .detail{width:calc(100vw - 24px)}
+      .intro-card{padding:30px 20px}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="map"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <h1>新河浦夜间光景地图</h1>
+        <p>沿着光，重新认识历史街区</p>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="active">光景地图</button>
+      <button onclick="switchPanel('routes')">推荐路线</button>
+      <button class="keep" onclick="showAbout()">关于项目</button>
+    </nav>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="eyebrow">Nightscape Explorer</div>
+      <h2 class="sidebar-title">今晚，在新河浦看什么？</h2>
+      <p class="sidebar-desc">从洋楼门廊、街巷树影到社区生活微光，选择一个节点开始夜间漫游。</p>
+    </div>
+    <div class="tabbar">
+      <button data-panel="nodes" class="active">光景节点</button>
+      <button data-panel="routes">漫游路线</button>
+    </div>
+    <div class="panel-content">
+      <section id="nodes-panel" class="panel active">
+        <div class="filter-row" id="filters"></div>
+        <div class="node-list" id="nodeList"></div>
+      </section>
+      <section id="routes-panel" class="panel"><div id="routeList"></div></section>
+    </div>
+  </aside>
+
+  <aside class="detail" id="detail">
+    <div class="detail-scroll">
+      <div class="hero" id="hero">
+        <button class="close" onclick="closeDetail()">×</button>
+        <div class="hero-caption">
+          <div class="eyebrow" id="detailCategory"></div>
+          <h2 id="detailTitle"></h2>
+        </div>
+      </div>
+      <div class="body">
+        <p class="lead" id="detailLead"></p>
+        <div class="facts">
+          <div class="fact"><b id="detailTime"></b><span>推荐时段</span></div>
+          <div class="fact"><b id="detailStay"></b><span>建议停留</span></div>
+          <div class="fact"><b id="detailLevel"></b><span>节点等级</span></div>
+        </div>
+        <div class="tags" id="detailTags"></div>
+        <div class="section"><h3>这里看什么</h3><p id="detailLook"></p></div>
+        <div class="section"><h3>最佳观看方式</h3><p id="detailView"></p></div>
+        <div class="section"><h3>夜游提示</h3><p id="detailTip"></p></div>
+        <button class="primary" id="focusBtn">在地图上定位</button>
+        <button class="secondary" id="researchBtn">进入全景浏览与调研问卷</button>
+        <p class="research-note">调研流程：浏览点位全景图 → 跳转问卷星填写感知问卷。问卷结果由问卷星统一收集。</p>
+      </div>
+    </div>
+  </aside>
+
+  <div class="intro" id="intro">
+    <div class="intro-card">
+      <div class="intro-symbol"></div>
+      <h2>新河浦夜间光景地图</h2>
+      <div class="sub">沿着光，重新认识新河浦</div>
+      <p>以地图串联历史建筑、街巷树影、入口庭院与夜间生活场景。点击光点，发现每一处夜色值得停留的原因。</p>
+      <button onclick="enterMap()">开始夜间漫游</button>
+    </div>
+  </div>
+
+  <div class="map-error" id="mapError">
+    <h3>高德地图鉴权未完成</h3>
+    <p>网页已经写入你的 Web 端 Key。若该 Key 还要求安全密钥，请在下面粘贴 securityJsCode。它只保存在当前浏览器中。</p>
+    <input id="securityInput" placeholder="粘贴 securityJsCode" />
+    <button onclick="saveSecurityCode()">保存并重新加载</button>
+  </div>
+
+  <div class="research-modal" id="researchModal" role="dialog" aria-modal="true" aria-labelledby="researchTitle">
+    <div class="research-card">
+      <button class="modal-close" onclick="closeResearch()" aria-label="关闭">×</button>
+      <div class="research-head">
+        <h2 id="researchTitle"></h2>
+        <div class="research-progress">
+          <span class="research-step active" id="panoStep"><i>1</i>浏览全景</span>
+          <span class="research-step" id="surveyStep"><i>2</i>感知问卷</span>
+          <span class="research-step" id="doneStep"><i>3</i>问卷星提交</span>
+        </div>
+      </div>
+      <div class="research-body" id="researchBody"></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/vendor/three/three.min.js"></script>
+<script src="assets/vendor/uevent/browser.min.js"></script>
+<script src="assets/vendor/photo-sphere-viewer/photo-sphere-viewer.min.js"></script>
+<script>
+  // =========================
+  // 高德地图配置
+  // =========================
+  const AMAP_KEY = "81f82664438cd02b4b144fabc759ac0e";
+  const storedSecurityCode = localStorage.getItem("xinhepu_amap_security_code") || "";
+  if (storedSecurityCode) {
+    window._AMapSecurityConfig = { securityJsCode: storedSecurityCode };
+  }
+
+  // =========================
+  // 节点数据：正式使用时可在这里替换
+  // =========================
+  const nodes = [
+    {
+      id:"chunyuan",name:"春园沿街光景",category:"历史建筑光景",
+      lng:113.29170,lat:23.12145,time:"19:00–21:00",stay:"8分钟",level:"核心节点",
+      tags:["洋楼立面","门廊暖光","历史街巷"],heat:88,richness:5,scene:"villa",
+      summary:"暖色入口光与街道树影共同构成克制而清晰的历史建筑夜间形象。",
+      look:"观察暖色入口灯光如何照亮门廊、台阶与局部立面，并与树冠遮挡形成明暗层次。",
+      view:"建议从道路对侧观察整体立面，再沿道路缓慢移动，比较正面与斜侧视角。",
+      tip:"邻近居住空间，请降低交谈音量，避免长时间使用强光补光。"
+    },
+    {
+      id:"kuiyuan",name:"逵园红砖微光",category:"历史建筑光景",
+      lng:113.29113,lat:23.12186,time:"18:45–21:30",stay:"10分钟",level:"核心节点",
+      tags:["红砖立面","内透光","艺术空间"],heat:96,richness:6,scene:"brick",
+      summary:"红砖洋楼在室内透光与入口照明下呈现温暖、细腻的材质层次。",
+      look:"重点观看窗洞内透光、入口局部照明与红砖材质之间的关系。",
+      view:"从道路对侧观察整体轮廓，再靠近入口观察窗框、砖墙和门廊细部。",
+      tip:"光景受开放时间影响，建议在出行前确认场馆状态。"
+    },
+    {
+      id:"jianyuan",name:"简园阳台光影",category:"入口与庭院光景",
+      lng:113.29213,lat:23.12117,time:"19:00–20:30",stay:"6分钟",level:"特色节点",
+      tags:["弧形阳台","柱廊投影","庭院入口"],heat:67,richness:5,scene:"balcony",
+      summary:"阳台、柱廊与植物在局部照明下形成多层次的建筑阴影。",
+      look:"注意阳台边缘、柱廊与庭院植物的前后叠合。",
+      view:"站在入口斜前方，可以同时看到阳台、柱廊和庭院植物。",
+      tip:"该点属于安静型光景，适合短暂停留。"
+    },
+    {
+      id:"peizheng",name:"培正路树影街巷",category:"街巷光影",
+      lng:113.29312,lat:23.12288,time:"19:30–22:00",stay:"5分钟",level:"特色节点",
+      tags:["路灯","树叶透光","街巷纵深"],heat:74,richness:4,scene:"trees",
+      summary:"连续路灯穿过树冠，在路面与围墙上形成有节奏的斑驳光影。",
+      look:"观察路面亮斑、围墙投影和街道纵深的变化。",
+      view:"沿道路步行而不是固定站立观看，光影会随着移动持续改变。",
+      tip:"注意车辆和自行车，拍摄时不要站在机动车道中央。"
+    },
+    {
+      id:"xuguyuan",name:"恤孤院路生活微光",category:"商业生活光景",
+      lng:113.29134,lat:23.12063,time:"19:00–22:30",stay:"12分钟",level:"核心节点",
+      tags:["橱窗内透","门头暖光","街道活动"],heat:100,richness:7,scene:"shop",
+      summary:"店铺内透光、门头灯与行人活动共同构成具有生活感的街道界面。",
+      look:"这里的光景由店铺室内透光、门头光、外摆活动和行人共同构成。",
+      view:"选择街道对侧或转角位置观察连续界面。",
+      tip:"尊重商户与顾客隐私，避免近距离拍摄人物正脸。"
+    },
+    {
+      id:"river",name:"新河浦水岸倒影",category:"植物景观光景",
+      lng:113.29238,lat:23.11988,time:"19:15–21:00",stay:"8分钟",level:"潜力节点",
+      tags:["水面反射","岸线植物","低照度"],heat:53,richness:4,scene:"water",
+      summary:"岸线灯光与周边建筑微光在水面形成柔和而不稳定的反射。",
+      look:"水面将岸线灯光、建筑内透光和环境亮度重新组合。",
+      view:"选择能同时纳入水面、岸线植物和对岸建筑的角度。",
+      tip:"部分位置照度较低，请留意脚下和临水安全。"
+    }
+  ];
+
+  const routes = [
+    {id:"classic",name:"60分钟 · 经典光景路线",desc:"串联红砖洋楼、门廊暖光、街巷树影与夜间生活界面。",duration:"约60分钟",distance:"约2.1公里",nodes:["kuiyuan","chunyuan","jianyuan","peizheng","xuguyuan"]},
+    {id:"quiet",name:"40分钟 · 静谧洋楼路线",desc:"避开高强度商业街段，重点体验历史建筑与庭院入口微光。",duration:"约40分钟",distance:"约1.4公里",nodes:["chunyuan","kuiyuan","jianyuan","river"]},
+    {id:"life",name:"30分钟 · 夜间生活路线",desc:"观察光与人的活动如何共同形成场景。",duration:"约30分钟",distance:"约1.0公里",nodes:["peizheng","xuguyuan","kuiyuan"]}
+  ];
+
+  // 按用户提供的正式点位名称检索并设置的前期调研点。
+  // “路口 / 支路 / 周边”等非单一 POI 名称，使用道路中心或相邻 POI 的代表坐标。
+  const formalSurveySites=[
+    {name:"庙前直街",lng:113.296137,lat:23.121357},
+    {name:"署前路—庙前西街路口",lng:113.295549,lat:23.121679},
+    {name:"一方东山",lng:113.292130,lat:23.122070},
+    {name:"均益路支路",lng:113.291434,lat:23.121537},
+    {name:"东华东路荷楼街",lng:113.290819,lat:23.121187},
+    {name:"东山大街休闲广场",lng:113.290112,lat:23.119257},
+    {name:"新河浦涌碧道",lng:113.290890,lat:23.119499},
+    {name:"中共三大会址广场",lng:113.296077,lat:23.118943},
+    {name:"简园周边",lng:113.296947,lat:23.118806},
+    {name:"培正中学校门",lng:113.298989,lat:23.119700},
+    {name:"新河浦三横路住宅区",lng:113.298761,lat:23.116854}
+  ];
+  const surveyPlaceholder={
+    category:"前期调研点",tags:["圈选位置","待补充实景"],
+    time:"待定",stay:"待定",level:"调研节点",
+    summary:"根据前期圈选位置设置的夜间光景调研点，待补充现场全景图与点位说明。",
+    look:"请结合全景图或现场体验，观察该位置的照明、建筑界面、植物与人行活动。",
+    view:"建议记录实际拍摄站位，并在后续外业中统一全景图的拍摄高度与朝向。",
+    tip:"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"
+  };
+  nodes.forEach((node,index)=>Object.assign(node,formalSurveySites[index],surveyPlaceholder));
+  formalSurveySites.slice(nodes.length).forEach((site,index)=>nodes.push({
+    id:`survey${String(index+7).padStart(2,"0")}`,...site,...surveyPlaceholder,
+    time:"待定",stay:"待定",level:"调研节点",heat:60,richness:4,scene:index===0?"shop":"water"
+  }));
+
+  // 全景图配置：已为“新河浦三横路住宅区”接入三张 360° 全景图。
+  // 其他节点暂用示例图；正式调研时可继续在 PANORAMA_TOURS 中添加图片路径。
+  // 图片应为等距柱状（equirectangular）360° 全景图。
+  const PANO_SAMPLE_URL = "https://pannellum.org/images/alma.jpg";
+  const WJX_SURVEY_URL = "https://v.wjx.cn/vm/m3sjhW5.aspx";
+  const LOCAL_PANORAMAS={};
+  const PANORAMA_TOURS={
+    survey11:[
+      {label:"演示场景 01",panoramaUrl:"assets/panoramas/新河浦三横路住宅区_场景01.jpg",longitude:0},
+      {label:"演示场景 02",panoramaUrl:"assets/panoramas/新河浦三横路住宅区_场景02.jpg",longitude:0},
+      {label:"演示场景 03",panoramaUrl:"assets/panoramas/新河浦三横路住宅区_场景03.jpg",longitude:0}
+    ]
+  };
+  const EMBEDDED_PANORAMA_SCRIPTS={};
+  nodes.forEach(node=>node.panoramaUrl=LOCAL_PANORAMAS[node.id]||PANO_SAMPLE_URL);
+  const residentialPanoramaNode=nodes.find(node=>node.id==="survey11");
+  if(residentialPanoramaNode) Object.assign(residentialPanoramaNode,{
+    tags:["360°实景","全景已接入"],
+    summary:"新河浦三横路住宅区夜间实景，可通过拖拽、缩放与全屏方式自由观察街巷光环境。",
+    look:"环视住宅街巷的道路照明、建筑入口、树冠遮挡、停车界面与路面明暗变化。",
+    view:"拖动鼠标或手指旋转视角，使用滚轮或缩放按钮改变视野范围，也可进入全屏浏览。"
+  });
+
+  let map = null;
+  let markerMap = new Map();
+  let routeOverlays = [];
+  let currentCategory = "全部";
+  let activeNode = null;
+  let researchNode = null;
+  let activePanoViewer = null;
+  let currentPanoramaSceneIndex = 0;
+
+  function sceneSvg(type,title=""){
+    const palettes={
+      villa:["#17242a","#bd8654","#e9bc72"],brick:["#182126","#9f5d49","#e4a96e"],
+      balcony:["#172229","#7c756c","#e5b675"],trees:["#122126","#486153","#e7bd73"],
+      shop:["#172127","#906753","#f0c078"],water:["#102027","#355866","#d8ae69"]
+    };
+    const p=palettes[type]||palettes.villa;
+    const shapes={
+      villa:`<path d="M50 95V40h90v55" fill="${p[1]}"/><rect x="62" y="55" width="18" height="26" fill="${p[2]}"/><path d="M90 95V48h48v47" fill="none" stroke="#d5b182" stroke-width="3"/><circle cx="23" cy="33" r="26" fill="#243d35"/>`,
+      brick:`<rect x="43" y="32" width="105" height="64" fill="${p[1]}"/><path d="M43 52h105M43 72h105M70 32v64M105 32v64M132 32v64" stroke="#744636"/><path d="M83 96V62h24v34" fill="${p[2]}"/>`,
+      balcony:`<rect x="42" y="38" width="112" height="58" fill="${p[1]}"/><path d="M48 60Q98 25 148 60v10H48z" fill="#c2b093"/><path d="M60 70v26M82 66v30M110 66v30M136 70v26" stroke="#403d3a" stroke-width="5"/>`,
+      trees:`<path d="M40 96L56 23M122 96L112 20" stroke="#263a31" stroke-width="7"/><circle cx="50" cy="30" r="30" fill="#365747"/><circle cx="112" cy="28" r="35" fill="#2c4b3e"/><path d="M21 80L52 36M74 88L104 30M132 83L116 25" stroke="${p[2]}" stroke-width="3" opacity=".55"/>`,
+      shop:`<rect x="24" y="36" width="138" height="60" fill="#253037"/><rect x="37" y="50" width="47" height="42" fill="${p[2]}"/><rect x="91" y="50" width="57" height="42" fill="#d7a469"/><path d="M24 43h138" stroke="${p[1]}" stroke-width="8"/>`,
+      water:`<path d="M0 66Q42 56 82 67T180 64V110H0z" fill="${p[1]}"/><path d="M20 76h42M76 84h55M44 94h86" stroke="${p[2]}" stroke-width="3" opacity=".45"/><rect x="68" y="36" width="46" height="29" fill="#624c3a"/><rect x="81" y="45" width="12" height="12" fill="${p[2]}"/>`
+    };
+    return `<svg viewBox="0 0 180 110" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="sky-${type}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${p[0]}"/><stop offset="1" stop-color="#0d1417"/></linearGradient></defs>
+      <rect width="180" height="110" fill="url(#sky-${type})"/>${shapes[type]||shapes.villa}
+    </svg>`;
+  }
+
+  function loadAmap(){
+    const script=document.createElement("script");
+    script.src=`https://webapi.amap.com/maps?v=2.0&key=${AMAP_KEY}`;
+    script.async=true;
+    script.onload=initMap;
+    script.onerror=showMapError;
+    document.head.appendChild(script);
+
+    setTimeout(()=>{
+      if(!window.AMap || !map) showMapError();
+    },7000);
+  }
+
+  function initMap(){
+    try{
+      map=new AMap.Map("map",{
+        zoom:16,
+        center:[113.29185,23.12125],
+        viewMode:"2D",
+        mapStyle:"amap://styles/darkblue",
+        resizeEnable:true,
+        showLabel:true
+      });
+      map.on("complete",()=>{
+        document.getElementById("mapError").classList.remove("show");
+      });
+      createMarkers();
+      renderAll();
+    }catch(e){
+      console.error(e);
+      showMapError();
+    }
+  }
+
+  function markerContent(){
+    const el=document.createElement("div");
+    el.className="custom-marker";
+    el.innerHTML=`<span class="halo"></span><span class="core"></span>`;
+    return el;
+  }
+
+  function createMarkers(){
+    markerMap.clear();
+    nodes.forEach(node=>{
+      const marker=new AMap.Marker({
+        position:[node.lng,node.lat],
+        content:markerContent(),
+        offset:new AMap.Pixel(-16,-16),
+        zIndex:120
+      });
+      marker.on("click",()=>openNode(node.id));
+      markerMap.set(node.id,marker);
+    });
+    refreshMarkers();
+  }
+
+  function refreshMarkers(){
+    if(!map) return;
+    map.remove([...markerMap.values()]);
+    const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory)
+      .map(n=>markerMap.get(n.id));
+    map.add(visible);
+  }
+
+  function renderAll(){
+    renderFilters();
+    renderNodes();
+    renderRoutes();
+  }
+
+  function renderFilters(){
+    const el=document.getElementById("filters");
+    el.innerHTML='<button class="chip active" data-category="全部">全部</button>';
+  }
+
+  function renderNodes(){
+    const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory);
+    document.getElementById("nodeList").innerHTML=visible.map(n=>`
+      <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
+        <div class="node-thumb">${sceneSvg(n.scene,n.name)}</div>
+        <div class="node-meta">
+          <h3>${n.name}</h3><p>${n.summary}</p>
+          <div class="tags">${n.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        </div>
+      </article>`).join("");
+    document.querySelectorAll(".node-card").forEach(card=>card.onclick=()=>openNode(card.dataset.id));
+  }
+
+  function renderRoutes(){
+    document.getElementById("routeList").innerHTML=routes.map(r=>`
+      <article class="route-card" data-route="${r.id}">
+        <div class="route-top"><h3>${r.name}</h3><span style="color:var(--gold)">→</span></div>
+        <p>${r.desc}</p>
+        <div class="route-stats"><span>${r.duration}</span><span>${r.distance}</span><span>${r.nodes.length}个节点</span></div>
+      </article>`).join("");
+    document.querySelectorAll(".route-card").forEach(card=>card.onclick=()=>showRoute(card.dataset.route));
+  }
+
+  function openNode(id){
+    const node=nodes.find(n=>n.id===id); if(!node) return;
+    activeNode=id;renderNodes();
+    const hero=document.getElementById("hero");
+    hero.querySelectorAll(":scope>svg").forEach(s=>s.remove());
+    hero.insertAdjacentHTML("afterbegin",sceneSvg(node.scene,node.name));
+    document.getElementById("detailCategory").textContent=node.category;
+    document.getElementById("detailTitle").textContent=node.name;
+    document.getElementById("detailLead").textContent=node.summary;
+    document.getElementById("detailTime").textContent=node.time;
+    document.getElementById("detailStay").textContent=node.stay;
+    document.getElementById("detailLevel").textContent=node.level;
+    document.getElementById("detailTags").innerHTML=node.tags.map(t=>`<span class="tag">${t}</span>`).join("");
+    document.getElementById("detailLook").textContent=node.look;
+    document.getElementById("detailView").textContent=node.view;
+    document.getElementById("detailTip").textContent=node.tip;
+    document.getElementById("focusBtn").onclick=()=>map&&map.setZoomAndCenter(18,[node.lng,node.lat]);
+    document.getElementById("researchBtn").onclick=()=>startResearch(node.id);
+    document.getElementById("detail").classList.add("open");
+    if(map) map.setZoomAndCenter(17.5,[node.lng,node.lat]);
+  }
+
+  function closeDetail(){
+    activeNode=null;renderNodes();document.getElementById("detail").classList.remove("open");
+  }
+
+  async function startResearch(id){
+    const node=nodes.find(n=>n.id===id); if(!node) return;
+    destroyPanoViewer();
+    researchNode=node;
+    currentPanoramaSceneIndex=0;
+    document.getElementById("researchTitle").textContent=node.name;
+    setResearchStep("pano");
+    document.getElementById("researchBody").innerHTML=`
+      <div class="pano-stage">
+        <div class="pano-viewer"><div id="panoViewer" aria-label="${node.name}全景图"></div></div>
+        <div class="pano-scene-badge" id="panoSceneBadge"></div>
+        <div class="ground-nav" id="groundNav">
+          <button class="ground-arrow next" id="panoNext" type="button" onclick="switchPanoramaScene(1)" aria-label="进入下一张全景" title="进入下一张全景"></button>
+          <button class="ground-arrow prev" id="panoPrev" type="button" onclick="switchPanoramaScene(-1)" aria-label="退回上一张全景" title="退回上一张全景"></button>
+        </div>
+      </div>
+      <p class="pano-help">拖动鼠标（或手指）可以环视，滚轮可以缩放；点击画面中的向前或向后箭头切换相邻全景。</p>
+      <button class="primary" onclick="openWjxSurvey()">漫游完毕，回答问卷</button>`;
+    document.getElementById("researchModal").classList.add("open");
+    updatePanoramaNavigation(node);
+    try{
+      await ensureLocalPanoramaReadable(node);
+      renderPanorama(node);
+    }catch(error){
+      console.error(error);
+      const container=document.getElementById("panoViewer");
+      if(container) container.innerHTML='<p style="padding:24px;color:#f5efe5;line-height:1.8">全景图片读取失败。请确认网页旁的 assets 文件夹完整，或通过本地服务器打开网页。</p>';
+    }
+  }
+
+  function ensureLocalPanoramaReadable(node){
+    const embedded=window.XINHEPU_EMBEDDED_PANOS&&window.XINHEPU_EMBEDDED_PANOS[node.id];
+    const scriptPath=EMBEDDED_PANORAMA_SCRIPTS[node.id];
+    if(location.protocol!=="file:"||embedded||!scriptPath) return Promise.resolve();
+    return new Promise((resolve,reject)=>{
+      const script=document.createElement("script");
+      script.src=scriptPath;
+      script.dataset.panoramaData=node.id;
+      script.onload=()=>resolve();
+      script.onerror=()=>{script.remove();reject(new Error(`无法载入本地全景数据：${scriptPath}`))};
+      document.head.appendChild(script);
+    });
+  }
+
+  function renderPanorama(node){
+    requestAnimationFrame(()=>{
+      const container=document.getElementById("panoViewer");
+      if(!container) return;
+      if(!window.PhotoSphereViewer){
+        container.innerHTML='<p style="padding:24px;color:#f5efe5">全景播放器加载失败，请确认 assets/vendor 文件夹完整。</p>';
+        return;
+      }
+      const embedded=window.XINHEPU_EMBEDDED_PANOS&&window.XINHEPU_EMBEDDED_PANOS[node.id];
+      const scene=getCurrentPanoramaScene(node);
+      activePanoViewer=new PhotoSphereViewer.Viewer({
+        container,panorama:embedded||scene.panoramaUrl||node.panoramaUrl,
+        navbar:["autorotate","zoom","fullscreen"],
+        mousewheel:true,mousemove:true,
+        minFov:30,maxFov:78,defaultZoomLvl:42,autorotateZoomLvl:42,
+        defaultLong:scene.longitude||0
+      });
+    });
+  }
+
+  function getPanoramaTour(node){
+    return PANORAMA_TOURS[node.id]||[{label:node.name,panoramaUrl:node.panoramaUrl,longitude:0}];
+  }
+
+  function getCurrentPanoramaScene(node){
+    const tour=getPanoramaTour(node);
+    return tour[Math.min(currentPanoramaSceneIndex,tour.length-1)];
+  }
+
+  function updatePanoramaNavigation(node){
+    const tour=getPanoramaTour(node);
+    const badge=document.getElementById("panoSceneBadge");
+    const nav=document.getElementById("groundNav");
+    const prev=document.getElementById("panoPrev");
+    const next=document.getElementById("panoNext");
+    if(badge) badge.textContent=`${currentPanoramaSceneIndex+1} / ${tour.length} · ${tour[currentPanoramaSceneIndex].label}`;
+    if(nav) nav.hidden=tour.length<2;
+    if(prev) prev.disabled=currentPanoramaSceneIndex===0;
+    if(next) next.disabled=currentPanoramaSceneIndex===tour.length-1;
+  }
+
+  function switchPanoramaScene(direction){
+    if(!researchNode) return;
+    const tour=getPanoramaTour(researchNode);
+    const target=Math.max(0,Math.min(tour.length-1,currentPanoramaSceneIndex+direction));
+    if(target===currentPanoramaSceneIndex) return;
+    currentPanoramaSceneIndex=target;
+    destroyPanoViewer();
+    updatePanoramaNavigation(researchNode);
+    renderPanorama(researchNode);
+  }
+
+  function destroyPanoViewer(){
+    if(activePanoViewer&&typeof activePanoViewer.destroy==="function") activePanoViewer.destroy();
+    activePanoViewer=null;
+  }
+
+  function openWjxSurvey(){
+    setResearchStep("survey");
+    const surveyWindow=window.open(WJX_SURVEY_URL,"_blank");
+    if(surveyWindow){
+      surveyWindow.opener=null;
+    }else{
+      window.location.href=WJX_SURVEY_URL;
+    }
+  }
+
+  function setResearchStep(stage){
+    const order={pano:1,survey:2,done:3};
+    [["panoStep",1],["surveyStep",2],["doneStep",3]].forEach(([id,num])=>{
+      const el=document.getElementById(id);
+      el.classList.toggle("active",num===order[stage]);
+      el.classList.toggle("done",num<order[stage]);
+    });
+  }
+
+  function showSurvey(){
+    if(!researchNode) return;
+    destroyPanoViewer();
+    setResearchStep("survey");
+    const questions=[
+      ["brightness","这个场景的整体明亮程度如何？","很暗","较暗","适中","较亮","很亮"],
+      ["comfort","这个场景的光环境让我感到舒适。","非常不同意","不同意","一般","同意","非常同意"],
+      ["safety","这个场景使我感到夜间步行是安全的。","非常不同意","不同意","一般","同意","非常同意"],
+      ["character","这个场景体现了新河浦的历史与场所特色。","非常不同意","不同意","一般","同意","非常同意"],
+      ["stay","我愿意在这里停留、散步或再次到访。","非常不同意","不同意","一般","同意","非常同意"]
+    ];
+    const questionHtml=questions.map(([key,title,...labels])=>`
+      <fieldset class="question"><legend>${title}</legend><div class="likert">
+        ${labels.map((label,index)=>`<label><input required type="radio" name="${key}" value="${index+1}"><span>${label}</span></label>`).join("")}
+      </div></fieldset>`).join("");
+    document.getElementById("researchBody").innerHTML=`
+      <form class="survey-form" id="surveyForm">
+        <p class="survey-intro">请依据刚才的全景浏览体验作答。除“受访者编号”外，其余为必答项；本模板不会收集姓名、电话等直接身份信息。</p>
+        <div class="form-grid">
+          <div class="field"><label>受访者编号（选填）</label><input name="participantCode" maxlength="30" placeholder="如：P001" /></div>
+          <div class="field"><label>你对新河浦的熟悉程度</label><select name="familiarity" required><option value="" disabled selected>请选择</option><option>从未来过</option><option>偶尔来访</option><option>比较熟悉</option><option>非常熟悉</option></select></div>
+        </div>
+        ${questionHtml}
+        <div class="field"><label>请用一句话描述最吸引你或最需要改善的光景元素（选填）</label><textarea name="comment" maxlength="500" placeholder="例如：树影很有氛围，但人行道局部偏暗。"></textarea></div>
+        <div class="survey-actions"><button type="button" class="secondary" onclick="startResearch(researchNode.id)">返回全景</button><button type="submit" class="primary">提交本点问卷</button></div>
+      </form>`;
+    document.getElementById("surveyForm").onsubmit=submitSurvey;
+  }
+
+  function submitSurvey(event){
+    event.preventDefault();
+    const form=event.currentTarget;
+    if(!form.reportValidity()||!researchNode) return;
+    const data=Object.fromEntries(new FormData(form).entries());
+    const responses=JSON.parse(localStorage.getItem("xinhepu_survey_responses")||"[]");
+    responses.push({
+      responseId:`R${Date.now()}`,
+      submittedAt:new Date().toISOString(),
+      nodeId:researchNode.id,nodeName:researchNode.name,nodeCategory:researchNode.category,
+      ...data
+    });
+    localStorage.setItem("xinhepu_survey_responses",JSON.stringify(responses));
+    setResearchStep("done");
+    document.getElementById("researchBody").innerHTML=`
+      <div class="thanks"><h3>感谢你的回答</h3><p>这份问卷已保存在本浏览器中。当前已累计 ${responses.length} 份有效样本。</p>
+      <button class="primary" onclick="closeResearch()">返回地图</button></div>`;
+  }
+
+  function exportSurveyData(){
+    const responses=JSON.parse(localStorage.getItem("xinhepu_survey_responses")||"[]");
+    if(!responses.length){alert("当前浏览器还没有问卷数据。");return}
+    const headers=["responseId","submittedAt","nodeId","nodeName","nodeCategory","participantCode","familiarity","brightness","comfort","safety","character","stay","comment"];
+    const escapeCsv=value=>`"${String(value??"").replaceAll('"','""')}"`;
+    const csv="\uFEFF"+[headers.join(","),...responses.map(r=>headers.map(key=>escapeCsv(r[key])).join(","))].join("\n");
+    const link=document.createElement("a");
+    link.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    link.download=`新河浦夜间光景问卷_${new Date().toLocaleDateString("zh-CN").replaceAll("/","-")}.csv`;
+    link.click();
+    setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+  }
+
+  function closeResearch(){
+    destroyPanoViewer();
+    document.getElementById("researchModal").classList.remove("open");
+    researchNode=null;
+  }
+
+  function showRoute(id){
+    if(!map) return;
+    routeOverlays.forEach(o=>map.remove(o)); routeOverlays=[];
+    const route=routes.find(r=>r.id===id); if(!route) return;
+    const routeNodes=route.nodes.map(x=>nodes.find(n=>n.id===x)).filter(Boolean);
+    const path=routeNodes.map(n=>[n.lng,n.lat]);
+
+    const line=new AMap.Polyline({
+      path,strokeColor:"#e8b86a",strokeOpacity:.9,strokeWeight:5,strokeStyle:"dashed",strokeDasharray:[6,8],zIndex:80
+    });
+    routeOverlays.push(line); map.add(line);
+
+    routeNodes.forEach((n,i)=>{
+      const content=document.createElement("div");
+      content.style.cssText="width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#e8b86a;color:#162024;border:1px solid #fff;font-size:11px;font-weight:700";
+      content.textContent=String(i+1);
+      const m=new AMap.Marker({position:[n.lng,n.lat],content,offset:new AMap.Pixel(-12,-12),zIndex:160});
+      routeOverlays.push(m);map.add(m);
+    });
+    map.setFitView(routeOverlays,false,[80,80,80,380]);
+  }
+
+  function switchPanel(name){
+    document.querySelectorAll(".tabbar button").forEach(b=>b.classList.toggle("active",b.dataset.panel===name));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById(`${name}-panel`).classList.add("active");
+  }
+  document.querySelectorAll(".tabbar button").forEach(btn=>btn.onclick=()=>switchPanel(btn.dataset.panel));
+
+  function enterMap(){document.getElementById("intro").classList.add("hidden");setTimeout(()=>map&&map.resize(),350)}
+  function showAbout(){document.getElementById("intro").classList.remove("hidden")}
+  function showMapError(){document.getElementById("mapError").classList.add("show")}
+  function saveSecurityCode(){
+    const v=document.getElementById("securityInput").value.trim();
+    if(!v){alert("请先粘贴 securityJsCode");return}
+    localStorage.setItem("xinhepu_amap_security_code",v);
+    location.reload();
+  }
+
+  window.openNode=openNode;
+  window.closeDetail=closeDetail;
+  window.switchPanel=switchPanel;
+  window.enterMap=enterMap;
+  window.showAbout=showAbout;
+  window.saveSecurityCode=saveSecurityCode;
+  window.startResearch=startResearch;
+  window.switchPanoramaScene=switchPanoramaScene;
+  window.openWjxSurvey=openWjxSurvey;
+  window.showSurvey=showSurvey;
+  window.closeResearch=closeResearch;
+  window.exportSurveyData=exportSurveyData;
+
+  loadAmap();
+</script>
+</body>
+</html>
