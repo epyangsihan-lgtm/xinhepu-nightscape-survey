@@ -137,6 +137,7 @@
     .hero-caption h2{margin:5px 0 0;font-size:25px;font-family:"Songti SC","Noto Serif SC",serif}
     .body{padding:18px}
     .lead{margin:0;color:#e8e2d8;line-height:1.8;font-size:13px}
+    .lead:empty,.tags:empty{display:none}
     .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
     .fact{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025)}
     .fact b{display:block;margin-bottom:3px;color:var(--gold2);font-size:12px}
@@ -144,15 +145,15 @@
     .section{padding-top:16px;margin-top:16px;border-top:1px solid var(--line)}
     .section h3{margin:0 0 8px;color:var(--gold2);font-size:13px}
     .section p{margin:0;color:#bdc6c7;font-size:12px;line-height:1.8}
+    .section p:empty{display:none}
     .primary{
-      width:100%;margin-top:18px;padding:12px;border:0;border-radius:12px;
-      background:var(--gold);color:#171d20;cursor:pointer;font-weight:650
+      width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;
+      background:var(--gold);color:#171d20;cursor:pointer;font-weight:700;font-size:16px
     }
     .secondary{
-      width:100%;margin-top:9px;padding:10px;border:1px solid var(--line);border-radius:12px;
-      background:rgba(255,255,255,.04);color:#d9dedc;cursor:pointer;font-size:12px
+      width:100%;margin-top:9px;padding:12px;border:1px solid var(--line);border-radius:12px;
+      background:rgba(255,255,255,.04);color:#d9dedc;cursor:pointer;font-size:15px
     }
-    .research-note{margin:14px 0 0;color:var(--muted);font-size:11px;line-height:1.65}
 
     .research-modal{
       position:fixed;z-index:1500;inset:0;display:none;place-items:center;padding:10px;
@@ -355,12 +356,10 @@
           <div class="fact"><b id="detailLevel"></b><span>节点等级</span></div>
         </div>
         <div class="tags" id="detailTags"></div>
-        <div class="section"><h3>这里看什么</h3><p id="detailLook"></p></div>
-        <div class="section"><h3>最佳观看方式</h3><p id="detailView"></p></div>
+        <div class="section"><h3>这里有什么</h3><p id="detailLook"></p></div>
         <div class="section"><h3>夜游提示</h3><p id="detailTip"></p></div>
-        <button class="primary" id="focusBtn">在地图上定位</button>
-        <button class="secondary" id="researchBtn">进入全景浏览与调研问卷</button>
-        <p class="research-note">调研流程：浏览点位全景图 → 跳转问卷星填写感知问卷。问卷结果由问卷星统一收集。</p>
+        <button class="primary" id="researchBtn">进入全景浏览与调研问卷</button>
+        <button class="secondary" id="focusBtn">在地图上定位</button>
       </div>
     </div>
   </aside>
@@ -493,12 +492,9 @@
     {name:"新河浦三横路住宅区",lng:113.298761,lat:23.116854}
   ];
   const surveyPlaceholder={
-    category:"前期调研点",tags:["圈选位置","待补充实景"],
+    category:"前期调研点",tags:[],
     time:"待定",stay:"待定",level:"调研节点",
-    summary:"根据前期圈选位置设置的夜间光景调研点，待补充现场全景图与点位说明。",
-    look:"请结合全景图或现场体验，观察该位置的照明、建筑界面、植物与人行活动。",
-    view:"建议记录实际拍摄站位，并在后续外业中统一全景图的拍摄高度与朝向。",
-    tip:"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"
+    summary:"",look:"",tip:""
   };
   nodes.forEach((node,index)=>Object.assign(node,formalSurveySites[index],surveyPlaceholder));
   formalSurveySites.slice(nodes.length).forEach((site,index)=>nodes.push({
@@ -525,8 +521,8 @@
   if(residentialPanoramaNode) Object.assign(residentialPanoramaNode,{
     tags:["360°实景","全景已接入"],
     summary:"新河浦三横路住宅区夜间实景，可通过拖拽、缩放与全屏方式自由观察街巷光环境。",
-    look:"环视住宅街巷的道路照明、建筑入口、树冠遮挡、停车界面与路面明暗变化。",
-    view:"拖动鼠标或手指旋转视角，使用滚轮或缩放按钮改变视野范围，也可进入全屏浏览。"
+    look:"沿街洋楼、树荫与住宅入口共同构成安静而日常的生活街景。可留意树影在路面和建筑立面上的变化，以及车辆停放、住户出入等活动带来的生活气息。",
+    tip:"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"
   });
 
   let map = null;
@@ -712,7 +708,6 @@
     document.getElementById("detailLevel").textContent=node.level;
     document.getElementById("detailTags").innerHTML=node.tags.map(t=>`<span class="tag">${t}</span>`).join("");
     document.getElementById("detailLook").textContent=node.look;
-    document.getElementById("detailView").textContent=node.view;
     document.getElementById("detailTip").textContent=node.tip;
     document.getElementById("focusBtn").onclick=()=>map&&map.setZoomAndCenter(18,[node.lng,node.lat]);
     document.getElementById("researchBtn").onclick=()=>startResearch(node.id);
