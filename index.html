@@ -265,10 +265,16 @@
       margin-top:10px;width:100%;padding:10px;border:0;border-radius:10px;background:var(--gold);color:#171d20;cursor:pointer;font-weight:650
     }
 
-    .custom-marker{position:relative;width:32px;height:32px}
+    .custom-marker{position:relative;width:32px;height:32px;overflow:visible}
     .custom-marker .core{
       position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:50%;
       background:var(--gold);border:2px solid rgba(255,255,255,.85);box-shadow:0 0 14px rgba(232,184,106,.95)
+    }
+    .custom-marker .marker-label{
+      position:absolute;left:50%;bottom:31px;transform:translateX(-50%);white-space:nowrap;
+      padding:4px 7px;border:1px solid var(--gold);border-radius:4px;background:rgba(14,21,24,.94);
+      color:var(--gold2);font-size:12px;font-weight:650;line-height:1.2;letter-spacing:.03em;
+      box-shadow:0 3px 10px rgba(0,0,0,.38);pointer-events:none
     }
 
     @media(max-width:860px){
@@ -277,6 +283,7 @@
       .topbar{left:12px;right:12px;top:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.24)}
       .detail{top:88px;right:12px;bottom:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
       .custom-marker .core{box-shadow:0 0 7px rgba(232,184,106,.72)}
+      .custom-marker .marker-label{bottom:29px;padding:3px 5px;font-size:10px}
     }
     @media(max-width:520px){
       .topbar{height:58px;padding:0 12px}
@@ -590,10 +597,15 @@
     }
   }
 
-  function markerContent(){
+  function markerContent(label){
     const el=document.createElement("div");
     el.className="custom-marker";
-    el.innerHTML=`<span class="core"></span>`;
+    const name=document.createElement("span");
+    name.className="marker-label";
+    name.textContent=label;
+    const core=document.createElement("span");
+    core.className="core";
+    el.append(name,core);
     return el;
   }
 
@@ -602,7 +614,7 @@
     nodes.forEach(node=>{
       const marker=new AMap.Marker({
         position:[node.lng,node.lat],
-        content:markerContent(),
+        content:markerContent(node.name),
         offset:new AMap.Pixel(-16,-16),
         zIndex:120
       });
