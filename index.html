@@ -63,6 +63,7 @@
       border:1px solid var(--line);border-radius:var(--radius);
       background:var(--panel);backdrop-filter:blur(20px);box-shadow:var(--shadow)
     }
+    .sidebar-toggle{display:none}
     .sidebar-head{padding:18px;border-bottom:1px solid var(--line)}
     .eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
     .sidebar-title{font-size:22px;line-height:1.25;margin:5px 0;font-family:"Songti SC","Noto Serif SC",serif;font-weight:600}
@@ -279,7 +280,13 @@
 
     @media(max-width:860px){
       .nav button:not(.keep){display:none}
-      .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+      .sidebar{left:12px;right:12px;bottom:12px;top:auto;width:auto;height:48vh;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28);transition:transform .28s ease,opacity .2s ease}
+      .sidebar.collapsed{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
+      .sidebar.collapsed + .sidebar-toggle{
+        position:absolute;z-index:851;left:50%;bottom:14px;display:grid;place-items:center;width:46px;height:30px;
+        transform:translateX(-50%);border:1px solid rgba(232,184,106,.7);border-radius:15px 15px 7px 7px;
+        background:rgba(16,23,27,.94);color:var(--gold2);font-size:20px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.34)
+      }
       .topbar{left:12px;right:12px;top:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.24)}
       .detail{top:88px;right:12px;bottom:12px;backdrop-filter:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
       .custom-marker .core{box-shadow:0 0 7px rgba(232,184,106,.72)}
@@ -336,6 +343,7 @@
       <section id="routes-panel" class="panel"><div id="routeList"></div></section>
     </div>
   </aside>
+  <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="展开光景节点面板" title="展开光景节点面板" onclick="setSidebarCollapsed(false)">⌃</button>
 
   <aside class="detail" id="detail">
     <div class="detail-scroll">
@@ -589,6 +597,9 @@
       map.on("complete",()=>{
         document.getElementById("mapError").classList.remove("show");
       });
+      map.on("click",()=>{
+        if(isMobileLayout()) setSidebarCollapsed(true);
+      });
       createMarkers();
       renderAll();
     }catch(e){
@@ -616,7 +627,8 @@
         position:[node.lng,node.lat],
         content:markerContent(node.name),
         offset:new AMap.Pixel(-16,-16),
-        zIndex:120
+        zIndex:120,
+        bubble:false
       });
       marker.on("click",()=>openNode(node.id));
       markerMap.set(node.id,marker);
@@ -685,6 +697,14 @@
     document.getElementById("researchBtn").onclick=()=>startResearch(node.id);
     document.getElementById("detail").classList.add("open");
     if(map) map.setZoomAndCenter(17.5,[node.lng,node.lat]);
+  }
+
+  function isMobileLayout(){
+    return window.matchMedia("(max-width: 860px)").matches;
+  }
+
+  function setSidebarCollapsed(collapsed){
+    document.querySelector(".sidebar").classList.toggle("collapsed",collapsed);
   }
 
   function closeDetail(){
