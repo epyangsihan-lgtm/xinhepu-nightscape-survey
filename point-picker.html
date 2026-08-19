@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>新河浦光景点位校准</title>
+  <style>
+    :root{--bg:#0b1216;--panel:#131d22;--line:rgba(255,255,255,.12);--gold:#e8b86a;--gold2:#ffdaa0;--text:#f5efe5;--muted:#aab4b7}
+    *{box-sizing:border-box}html,body,#app{width:100%;height:100%;margin:0;overflow:hidden}
+    body{background:var(--bg);color:var(--text);font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif}
+    #map{position:absolute;inset:0}
+    .panel{position:absolute;z-index:10;left:18px;top:18px;bottom:18px;width:min(370px,calc(100vw - 36px));display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:rgba(19,29,34,.96);box-shadow:0 16px 48px rgba(0,0,0,.42)}
+    .head{padding:18px;border-bottom:1px solid var(--line)}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.16em}.head h1{margin:6px 0 8px;font-size:22px}.head p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}
+    .selected{margin:12px 14px 8px;padding:12px;border:1px solid rgba(232,184,106,.38);border-radius:12px;background:rgba(232,184,106,.08)}.selected span{display:block;color:var(--gold);font-size:11px}.selected strong{display:block;margin:4px 0;font-size:16px}.coords{color:#c5d0d1;font:12px ui-monospace,SFMono-Regular,Consolas,monospace}
+    .hint{margin:0 14px 10px;color:var(--muted);font-size:12px;line-height:1.6}.list{flex:1;overflow:auto;padding:0 14px 12px}.site{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:7px 0;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text);text-align:left;cursor:pointer}.site:hover,.site.active{border-color:var(--gold);background:rgba(232,184,106,.1)}.site b{font-size:13px}.site small{color:var(--muted);font:10px ui-monospace,SFMono-Regular,Consolas,monospace}
+    .actions{padding:12px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{padding:10px 7px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-weight:600}.actions .copy{border-color:var(--gold);background:var(--gold);color:#182024}.status{min-height:18px;margin:0 14px 12px;color:var(--gold2);font-size:11px;text-align:center}
+    .marker{position:relative;width:26px;height:26px}.marker i{position:absolute;left:5px;top:5px;width:16px;height:16px;border:2px solid rgba(255,255,255,.9);border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(232,184,106,.95)}.marker span{position:absolute;left:50%;bottom:27px;transform:translateX(-50%);padding:3px 6px;border:1px solid var(--gold);border-radius:4px;background:rgba(14,21,24,.94);color:var(--gold2);font-size:11px;white-space:nowrap}
+    @media(max-width:700px){.panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;height:46vh}.head{padding:13px}.head h1{font-size:18px}.list{padding-bottom:8px}.site{margin:5px 0;padding:8px 10px}.marker span{font-size:10px;padding:2px 4px}}
+  </style>
+</head>
+<body>
+  <div id="app"><div id="map"></div>
+    <aside class="panel">
+      <div class="head"><div class="eyebrow">POINT CALIBRATION</div><h1>新河浦光景点位校准</h1><p>先选一个节点，再直接点击地图中希望放置亮点的位置。坐标只保存在当前浏览器，确认后复制清单发给我。</p></div>
+      <div class="selected"><span>当前选中点位</span><strong id="selectedName"></strong><div class="coords" id="selectedCoords"></div></div>
+      <p class="hint">提示：点击地图会移动当前黄点；点击其他黄点可切换到该点。</p>
+      <div class="list" id="siteList"></div>
+      <div class="actions"><button class="copy" id="copyBtn">复制点位清单</button><button id="resetBtn">恢复当前线上位置</button></div>
+      <p class="status" id="status"></p>
+    </aside>
+  </div>
+  <script>
+    const AMAP_KEY="81f82664438cd02b4b144fabc759ac0e";
+    const initialSites=[
+      {name:"庙前直街",lng:113.296137,lat:23.121357},{name:"署前路—庙前西街路口",lng:113.295549,lat:23.121679},
+      {name:"一方东山",lng:113.292130,lat:23.122070},{name:"均益路",lng:113.291434,lat:23.121537},{name:"东华东路骑楼街",lng:113.290819,lat:23.121187},
+      {name:"东山大街休闲广场",lng:113.290112,lat:23.119257},{name:"新河浦涌碧道",lng:113.290890,lat:23.119499},{name:"中共三大会址广场",lng:113.296077,lat:23.118943},
+      {name:"简园周边",lng:113.296947,lat:23.118806},{name:"培正中学校门",lng:113.298989,lat:23.119700},{name:"新河浦三横路住宅区",lng:113.298761,lat:23.116854}
+    ];
+    const storageKey="xinhepu-point-picker-v1";
+    const cloneInitial=()=>initialSites.map(site=>({...site}));
+    let sites=JSON.parse(localStorage.getItem(storageKey)||"null")||cloneInitial();
+    let selectedIndex=0,map,markers=[];
+    const fmt=n=>Number(n).toFixed(6);
+    function markerContent(name){const el=document.createElement("div");el.className="marker";el.innerHTML="<span></span><i></i>";el.querySelector("span").textContent=name;return el}
+    function save(){localStorage.setItem(storageKey,JSON.stringify(sites))}
+    function renderList(){
+      document.getElementById("siteList").innerHTML=sites.map((site,index)=>`<button class="site ${index===selectedIndex?"active":""}" data-index="${index}"><b>${site.name}</b><small>${fmt(site.lng)}, ${fmt(site.lat)}</small></button>`).join("");
+      document.querySelectorAll(".site").forEach(btn=>btn.onclick=()=>selectSite(Number(btn.dataset.index),true));
+      const site=sites[selectedIndex];document.getElementById("selectedName").textContent=site.name;document.getElementById("selectedCoords").textContent=`${fmt(site.lng)}, ${fmt(site.lat)}`;
+    }
+    function selectSite(index,pan){selectedIndex=index;renderList();if(pan&&map)map.setCenter([sites[index].lng,sites[index].lat])}
+    function buildMarkers(){if(!map)return;map.remove(markers);markers=sites.map((site,index)=>{const marker=new AMap.Marker({position:[site.lng,site.lat],content:markerContent(site.name),offset:new AMap.Pixel(-13,-13),bubble:false,zIndex:120});marker.on("click",()=>selectSite(index,true));return marker});map.add(markers)}
+    function moveSelected(lng,lat){sites[selectedIndex].lng=Number(lng.toFixed(6));sites[selectedIndex].lat=Number(lat.toFixed(6));markers[selectedIndex].setPosition([lng,lat]);save();renderList();document.getElementById("status").textContent=`已更新“${sites[selectedIndex].name}”的位置`}
+    function exportText(){return sites.map(site=>`${site.name}：${fmt(site.lng)}, ${fmt(site.lat)}`).join("\n")}
+    document.getElementById("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText(exportText());document.getElementById("status").textContent="已复制，请直接粘贴到聊天里发给我。"}catch{document.getElementById("status").textContent="复制失败，请手动截图或告诉我当前显示的坐标。"}};
+    document.getElementById("resetBtn").onclick=()=>{sites=cloneInitial();save();buildMarkers();selectSite(0,false);document.getElementById("status").textContent="已恢复为当前线上位置。"};
+    function init(){map=new AMap.Map("map",{zoom:16.2,zooms:[15,18],center:[113.29455,23.11945],viewMode:"2D",mapStyle:"amap://styles/darkblue",features:["bg","road","building","point"],resizeEnable:true,showLabel:true});map.setLimitBounds(new AMap.Bounds([113.2878,23.1145],[113.3015,23.1248]));map.on("click",event=>moveSelected(event.lnglat.getLng(),event.lnglat.getLat()));buildMarkers();renderList()}
+    const script=document.createElement("script");script.src=`https://webapi.amap.com/maps?v=2.0&key=${AMAP_KEY}`;script.onload=init;script.onerror=()=>document.getElementById("status").textContent="高德地图加载失败，请检查网络或 Key 设置。";document.head.appendChild(script);
+  </script>
+</body>
+</html>
