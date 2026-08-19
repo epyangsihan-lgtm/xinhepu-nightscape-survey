@@ -32,12 +32,12 @@
   <script>
     const AMAP_KEY="81f82664438cd02b4b144fabc759ac0e";
     const initialSites=[
-      {name:"庙前直街",lng:113.296137,lat:23.121357},{name:"署前路—庙前西街路口",lng:113.295549,lat:23.121679},
-      {name:"一方东山",lng:113.292130,lat:23.122070},{name:"均益路",lng:113.291434,lat:23.121537},{name:"东华东路骑楼街",lng:113.290819,lat:23.121187},
-      {name:"东山大街休闲广场",lng:113.290112,lat:23.119257},{name:"新河浦涌碧道",lng:113.290890,lat:23.119499},{name:"中共三大会址广场",lng:113.296077,lat:23.118943},
-      {name:"简园周边",lng:113.296947,lat:23.118806},{name:"培正中学校门",lng:113.298989,lat:23.119700},{name:"新河浦三横路住宅区",lng:113.298761,lat:23.116854}
+      {name:"庙前直街",lng:113.295647,lat:23.121518},{name:"署前路—庙前西街路口",lng:113.294352,lat:23.121894},
+      {name:"一方东山",lng:113.292011,lat:23.121905},{name:"均益路",lng:113.291700,lat:23.121424},{name:"东华东路骑楼街",lng:113.292467,lat:23.120482},
+      {name:"东山大街休闲广场",lng:113.294261,lat:23.119383},{name:"新河浦涌碧道",lng:113.294872,lat:23.118298},{name:"中共三大会址广场",lng:113.296314,lat:23.118903},
+      {name:"简园周边",lng:113.297117,lat:23.118956},{name:"培正中学校门",lng:113.297652,lat:23.120615},{name:"新河浦三横路住宅区",lng:113.298762,lat:23.116763}
     ];
-    const storageKey="xinhepu-point-picker-v1";
+    const storageKey="xinhepu-point-picker-v2";
     const cloneInitial=()=>initialSites.map(site=>({...site}));
     let sites=JSON.parse(localStorage.getItem(storageKey)||"null")||cloneInitial();
     let selectedIndex=0,map,markers=[];
