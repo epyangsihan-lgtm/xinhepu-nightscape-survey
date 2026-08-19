@@ -498,16 +498,35 @@
     {name:"新河浦小区",lng:113.298762,lat:23.116763},
     {name:"东山堂",lng:113.297459,lat:23.122557}
   ];
+  // 每个前期调研点在详情卡片中显示的独立说明，可由本地点位校准工具同步更新。
+  const surveySiteDetails = [
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"沿街洋楼、树荫与住宅入口共同构成安静而日常的生活街景。可留意树影在路面和建筑立面上的变化，以及车辆停放、住户出入等活动带来的生活气息。","tip":"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"},
+    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""}
+  ];
   const surveyPlaceholder={
     category:"前期调研点",tags:[],
     time:"待定",stay:"待定",level:"调研节点",
     summary:"",look:"",tip:""
   };
-  nodes.forEach((node,index)=>Object.assign(node,formalSurveySites[index],surveyPlaceholder));
-  formalSurveySites.slice(nodes.length).forEach((site,index)=>nodes.push({
-    id:`survey${String(index+7).padStart(2,"0")}`,...site,...surveyPlaceholder,
-    time:"待定",stay:"待定",level:"调研节点",heat:60,richness:4,scene:index===0?"shop":"water"
-  }));
+  const initialSurveyNodeCount=nodes.length;
+  nodes.forEach((node,index)=>Object.assign(node,formalSurveySites[index],surveyPlaceholder,surveySiteDetails[index]||{}));
+  formalSurveySites.slice(initialSurveyNodeCount).forEach((site,index)=>{
+    const siteIndex=initialSurveyNodeCount+index;
+    nodes.push({
+      id:`survey${String(siteIndex+1).padStart(2,"0")}`,...site,...surveyPlaceholder,...(surveySiteDetails[siteIndex]||{}),
+      heat:60,richness:4,scene:index===0?"shop":"water"
+    });
+  });
 
   // 全景图配置：已为“新河浦三横路住宅区”接入三张 360° 全景图。
   // 其他节点暂用示例图；正式调研时可继续在 PANORAMA_TOURS 中添加图片路径。
@@ -527,9 +546,7 @@
   const residentialPanoramaNode=nodes.find(node=>node.id==="survey11");
   if(residentialPanoramaNode) Object.assign(residentialPanoramaNode,{
     tags:["360°实景","全景已接入"],
-    summary:"新河浦三横路住宅区夜间实景，可通过拖拽、缩放与全屏方式自由观察街巷光环境。",
-    look:"沿街洋楼、树荫与住宅入口共同构成安静而日常的生活街景。可留意树影在路面和建筑立面上的变化，以及车辆停放、住户出入等活动带来的生活气息。",
-    tip:"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"
+    summary:"新河浦三横路住宅区夜间实景，可通过拖拽、缩放与全屏方式自由观察街巷光环境。"
   });
 
   let map = null;
