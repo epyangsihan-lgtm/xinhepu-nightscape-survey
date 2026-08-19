@@ -997,7 +997,7 @@
     const nav=document.getElementById("groundNav");
     const prev=document.getElementById("panoPrev");
     const next=document.getElementById("panoNext");
-    if(badge) badge.textContent=`${currentPanoramaSceneIndex+1} / ${tour.length} · ${tour[currentPanoramaSceneIndex].label}`;
+    if(badge) badge.textContent=`${currentPanoramaSceneIndex+1} / ${tour.length}`;
     if(nav) nav.hidden=tour.length<2;
     if(prev) prev.disabled=currentPanoramaSceneIndex===0;
     if(next) next.disabled=currentPanoramaSceneIndex===tour.length-1;
