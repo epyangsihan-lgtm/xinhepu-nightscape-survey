@@ -500,19 +500,91 @@
   ];
   // 每个前期调研点在详情卡片中显示的独立说明，可由本地点位校准工具同步更新。
   const surveySiteDetails = [
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"沿街洋楼、树荫与住宅入口共同构成安静而日常的生活街景。可留意树影在路面和建筑立面上的变化，以及车辆停放、住户出入等活动带来的生活气息。","tip":"本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"},
-    {"time":"待定","stay":"待定","level":"调研节点","look":"","tip":""}
-  ];
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "19:00-21:00",
+    "stay": "拍照打卡",
+    "level": "文化地标",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "沿街洋楼、树荫与住宅入口共同构成安静而日常的生活街景。可留意树影在路面和建筑立面上的变化，以及车辆停放、住户出入等活动带来的生活气息。",
+    "tip": "本点位名称和坐标可继续调整；问卷流程已可直接用于前期测试。"
+  },
+  {
+    "time": "待定",
+    "stay": "待定",
+    "level": "调研节点",
+    "look": "",
+    "tip": ""
+  }
+];
   const surveyPlaceholder={
     category:"前期调研点",tags:[],
     time:"待定",stay:"待定",level:"调研节点",
@@ -536,14 +608,56 @@
   const LOCAL_PANORAMAS={};
   // 与点位清单一一对应，可由本地点位校准工具上传、排序和同步。
   const surveyPanoramaTours = [
-    [],[],[],[],[],[],[],[],[],[],
-    [
-      {"label":"演示场景 01","panoramaUrl":"assets/panoramas/新河浦三横路住宅区_场景01.jpg","longitude":0},
-      {"label":"演示场景 02","panoramaUrl":"assets/panoramas/新河浦三横路住宅区_场景02.jpg","longitude":0},
-      {"label":"演示场景 03","panoramaUrl":"assets/panoramas/新河浦三横路住宅区_场景03.jpg","longitude":0}
-    ],
-    []
-  ];
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [
+    {
+      "label": "1",
+      "panoramaUrl": "assets/panoramas/cal_08_1787128530175.jpg",
+      "longitude": 0
+    },
+    {
+      "label": "3",
+      "panoramaUrl": "assets/panoramas/cal_08_1787128534977.jpg",
+      "longitude": 0
+    },
+    {
+      "label": "4",
+      "panoramaUrl": "assets/panoramas/cal_08_1787128539667.jpg",
+      "longitude": 0
+    },
+    {
+      "label": "5",
+      "panoramaUrl": "assets/panoramas/cal_08_1787128544704.jpg",
+      "longitude": 0
+    }
+  ],
+  [],
+  [],
+  [
+    {
+      "label": "演示场景 01",
+      "panoramaUrl": "assets/panoramas/新河浦三横路住宅区_场景01.jpg",
+      "longitude": 0
+    },
+    {
+      "label": "演示场景 02",
+      "panoramaUrl": "assets/panoramas/新河浦三横路住宅区_场景02.jpg",
+      "longitude": 0
+    },
+    {
+      "label": "演示场景 03",
+      "panoramaUrl": "assets/panoramas/新河浦三横路住宅区_场景03.jpg",
+      "longitude": 0
+    }
+  ],
+  []
+];
   const PANORAMA_TOURS={};
   surveyPanoramaTours.forEach((tour,index)=>{if(tour.length&&nodes[index])PANORAMA_TOURS[nodes[index].id]=tour});
   const EMBEDDED_PANORAMA_SCRIPTS={};
