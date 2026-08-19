@@ -11,9 +11,9 @@
     #map{position:absolute;inset:0}
     .panel{position:absolute;z-index:10;left:18px;top:18px;bottom:18px;width:min(370px,calc(100vw - 36px));display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:rgba(19,29,34,.96);box-shadow:0 16px 48px rgba(0,0,0,.42)}
     .head{padding:18px;border-bottom:1px solid var(--line)}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.16em}.head h1{margin:6px 0 8px;font-size:22px}.head p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}
-    .selected{margin:12px 14px 8px;padding:12px;border:1px solid rgba(232,184,106,.38);border-radius:12px;background:rgba(232,184,106,.08)}.selected span{display:block;color:var(--gold);font-size:11px}.selected strong{display:block;margin:4px 0;font-size:16px}.coords{color:#c5d0d1;font:12px ui-monospace,SFMono-Regular,Consolas,monospace}
+    .selected{margin:12px 14px 8px;padding:12px;border:1px solid rgba(232,184,106,.38);border-radius:12px;background:rgba(232,184,106,.08)}.selected span{display:block;color:var(--gold);font-size:11px}.name-edit{display:grid;grid-template-columns:1fr auto;gap:7px;margin:7px 0}.name-edit input{min-width:0;padding:8px 9px;border:1px solid rgba(232,184,106,.42);border-radius:8px;background:#0e1518;color:var(--text);font:600 14px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif}.name-edit button{padding:8px 10px;border:0;border-radius:8px;background:var(--gold);color:#182024;font-weight:700;cursor:pointer}.coords{color:#c5d0d1;font:12px ui-monospace,SFMono-Regular,Consolas,monospace}
     .hint{margin:0 14px 10px;color:var(--muted);font-size:12px;line-height:1.6}.list{flex:1;overflow:auto;padding:0 14px 12px}.site{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:7px 0;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--text);text-align:left;cursor:pointer}.site:hover,.site.active{border-color:var(--gold);background:rgba(232,184,106,.1)}.site b{font-size:13px}.site small{color:var(--muted);font:10px ui-monospace,SFMono-Regular,Consolas,monospace}
-    .actions{padding:12px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{padding:10px 7px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-weight:600}.actions .copy{border-color:var(--gold);background:var(--gold);color:#182024}.status{min-height:18px;margin:0 14px 12px;color:var(--gold2);font-size:11px;text-align:center}
+    .actions{padding:12px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.actions button{padding:10px 7px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-weight:600}.actions .copy{border-color:var(--gold);background:var(--gold);color:#182024}.status{min-height:18px;margin:0 14px 12px;color:var(--gold2);font-size:11px;text-align:center}
     .marker{position:relative;width:26px;height:26px}.marker i{position:absolute;left:5px;top:5px;width:16px;height:16px;border:2px solid rgba(255,255,255,.9);border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(232,184,106,.95)}.marker span{position:absolute;left:50%;bottom:27px;transform:translateX(-50%);padding:3px 6px;border:1px solid var(--gold);border-radius:4px;background:rgba(14,21,24,.94);color:var(--gold2);font-size:11px;white-space:nowrap}
     @media(max-width:700px){.panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;height:46vh}.head{padding:13px}.head h1{font-size:18px}.list{padding-bottom:8px}.site{margin:5px 0;padding:8px 10px}.marker span{font-size:10px;padding:2px 4px}}
   </style>
@@ -22,10 +22,10 @@
   <div id="app"><div id="map"></div>
     <aside class="panel">
       <div class="head"><div class="eyebrow">POINT CALIBRATION</div><h1>新河浦光景点位校准</h1><p>先选一个节点，再直接点击地图中希望放置亮点的位置。坐标只保存在当前浏览器，确认后复制清单发给我。</p></div>
-      <div class="selected"><span>当前选中点位</span><strong id="selectedName"></strong><div class="coords" id="selectedCoords"></div></div>
-      <p class="hint">提示：点击地图会移动当前黄点；点击其他黄点可切换到该点。</p>
+      <div class="selected"><span>当前选中点位</span><div class="name-edit"><input id="siteNameInput" aria-label="点位名称"><button id="renameBtn">保存名称</button></div><div class="coords" id="selectedCoords"></div></div>
+      <p class="hint">提示：点击地图会移动当前黄点；点击其他黄点可切换到该点；新增点位后再点击地图放置即可。</p>
       <div class="list" id="siteList"></div>
-      <div class="actions"><button class="copy" id="copyBtn">复制点位清单</button><button id="resetBtn">恢复当前线上位置</button></div>
+      <div class="actions"><button class="copy" id="copyBtn">复制清单</button><button id="addBtn">新增点位</button><button id="resetBtn">恢复线上位置</button></div>
       <p class="status" id="status"></p>
     </aside>
   </div>
@@ -42,18 +42,24 @@
     let sites=JSON.parse(localStorage.getItem(storageKey)||"null")||cloneInitial();
     let selectedIndex=0,map,markers=[];
     const fmt=n=>Number(n).toFixed(6);
+    const escapeHtml=value=>String(value).replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"})[char]);
     function markerContent(name){const el=document.createElement("div");el.className="marker";el.innerHTML="<span></span><i></i>";el.querySelector("span").textContent=name;return el}
     function save(){localStorage.setItem(storageKey,JSON.stringify(sites))}
     function renderList(){
-      document.getElementById("siteList").innerHTML=sites.map((site,index)=>`<button class="site ${index===selectedIndex?"active":""}" data-index="${index}"><b>${site.name}</b><small>${fmt(site.lng)}, ${fmt(site.lat)}</small></button>`).join("");
+      document.getElementById("siteList").innerHTML=sites.map((site,index)=>`<button class="site ${index===selectedIndex?"active":""}" data-index="${index}"><b>${escapeHtml(site.name)}</b><small>${fmt(site.lng)}, ${fmt(site.lat)}</small></button>`).join("");
       document.querySelectorAll(".site").forEach(btn=>btn.onclick=()=>selectSite(Number(btn.dataset.index),true));
-      const site=sites[selectedIndex];document.getElementById("selectedName").textContent=site.name;document.getElementById("selectedCoords").textContent=`${fmt(site.lng)}, ${fmt(site.lat)}`;
+      const site=sites[selectedIndex];document.getElementById("siteNameInput").value=site.name;document.getElementById("selectedCoords").textContent=`${fmt(site.lng)}, ${fmt(site.lat)}`;
     }
     function selectSite(index,pan){selectedIndex=index;renderList();if(pan&&map)map.setCenter([sites[index].lng,sites[index].lat])}
     function buildMarkers(){if(!map)return;map.remove(markers);markers=sites.map((site,index)=>{const marker=new AMap.Marker({position:[site.lng,site.lat],content:markerContent(site.name),offset:new AMap.Pixel(-13,-13),bubble:false,zIndex:120});marker.on("click",()=>selectSite(index,true));return marker});map.add(markers)}
     function moveSelected(lng,lat){sites[selectedIndex].lng=Number(lng.toFixed(6));sites[selectedIndex].lat=Number(lat.toFixed(6));markers[selectedIndex].setPosition([lng,lat]);save();renderList();document.getElementById("status").textContent=`已更新“${sites[selectedIndex].name}”的位置`}
     function exportText(){return sites.map(site=>`${site.name}：${fmt(site.lng)}, ${fmt(site.lat)}`).join("\n")}
+    function renameSelected(){const input=document.getElementById("siteNameInput");const name=input.value.trim();if(!name){document.getElementById("status").textContent="点位名称不能为空。";return}sites[selectedIndex].name=name;save();buildMarkers();renderList();document.getElementById("status").textContent=`已将当前点位改名为“${name}”。`}
+    function addSite(){const center=map?map.getCenter():{getLng:()=>113.29455,getLat:()=>23.11945};sites.push({name:`新增点位 ${sites.length+1}`,lng:Number(center.getLng().toFixed(6)),lat:Number(center.getLat().toFixed(6))});selectedIndex=sites.length-1;save();buildMarkers();renderList();document.getElementById("status").textContent="已新增黄点，请点击地图把它移动到准确位置。"}
     document.getElementById("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText(exportText());document.getElementById("status").textContent="已复制，请直接粘贴到聊天里发给我。"}catch{document.getElementById("status").textContent="复制失败，请手动截图或告诉我当前显示的坐标。"}};
+    document.getElementById("renameBtn").onclick=renameSelected;
+    document.getElementById("siteNameInput").onkeydown=event=>{if(event.key==="Enter"){event.preventDefault();renameSelected()}};
+    document.getElementById("addBtn").onclick=addSite;
     document.getElementById("resetBtn").onclick=()=>{sites=cloneInitial();save();buildMarkers();selectSite(0,false);document.getElementById("status").textContent="已恢复为当前线上位置。"};
     function init(){map=new AMap.Map("map",{zoom:16.2,zooms:[15,18],center:[113.29455,23.11945],viewMode:"2D",mapStyle:"amap://styles/darkblue",features:["bg","road","building","point"],resizeEnable:true,showLabel:true});map.setLimitBounds(new AMap.Bounds([113.2878,23.1145],[113.3015,23.1248]));map.on("click",event=>moveSelected(event.lnglat.getLng(),event.lnglat.getLat()));buildMarkers();renderList()}
     const script=document.createElement("script");script.src=`https://webapi.amap.com/maps?v=2.0&key=${AMAP_KEY}`;script.onload=init;script.onerror=()=>document.getElementById("status").textContent="高德地图加载失败，请检查网络或 Key 设置。";document.head.appendChild(script);
