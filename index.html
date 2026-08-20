@@ -744,6 +744,7 @@
   let researchNode = null;
   let activePanoViewer = null;
   let currentPanoramaSceneIndex = 0;
+  let panoramaAutorotateTimer = null;
   const compactMapMode=window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
   function sceneSvg(type,title=""){
     const palettes={
@@ -998,7 +999,7 @@
         navbar:["autorotate","zoom","fullscreen"],
         mousewheel:true,mousemove:true,
         minFov:30,maxFov:92,defaultZoomLvl:18,autorotateZoomLvl:18,
-        autorotateDelay:4500,autorotateIdle:true,autorotateSpeed:"0.65rpm",
+        autorotateDelay:null,autorotateIdle:false,autorotateSpeed:"0.65rpm",
         defaultLong:scene.longitude||0
       });
       activePanoViewer.on("load-progress",(...args)=>{
@@ -1006,6 +1007,7 @@
         if(Number.isFinite(progress)) showPanoramaLoading(progress);
       });
       const onPanoramaReady=()=>{
+        setPanoramaStartDirection(activePanoViewer,getCurrentPanoramaScene(node));
         hidePanoramaLoading();
         preloadAdjacentPanorama(node);
       };
@@ -1087,6 +1089,16 @@
     if(next) next.disabled=currentPanoramaSceneIndex===tour.length-1;
   }
 
+  function setPanoramaStartDirection(viewer,scene){
+    if(panoramaAutorotateTimer){clearTimeout(panoramaAutorotateTimer);panoramaAutorotateTimer=null}
+    if(!viewer||!scene)return;
+    viewer.stopAutorotate();
+    viewer.rotate({longitude:Number(scene.longitude)||0,latitude:0});
+    panoramaAutorotateTimer=setTimeout(()=>{
+      if(activePanoViewer===viewer) viewer.startAutorotate();
+    },4500);
+  }
+
   async function switchPanoramaScene(direction){
     if(!researchNode) return;
     const tour=getPanoramaTour(researchNode);
@@ -1100,6 +1112,7 @@
       showPanoramaLoading(4);
       try{
         await activePanoViewer.setPanorama(source,{longitude:scene.longitude||0},false);
+        setPanoramaStartDirection(activePanoViewer,scene);
         hidePanoramaLoading();
         preloadAdjacentPanorama(researchNode);
         return;
@@ -1110,6 +1123,7 @@
   }
 
   function destroyPanoViewer(){
+    if(panoramaAutorotateTimer){clearTimeout(panoramaAutorotateTimer);panoramaAutorotateTimer=null}
     if(activePanoViewer&&typeof activePanoViewer.destroy==="function") activePanoViewer.destroy();
     activePanoViewer=null;
   }
