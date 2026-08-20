@@ -361,7 +361,6 @@
           <div class="fact"><b id="detailStay"></b><span>建议停留</span></div>
           <div class="fact"><b id="detailLevel"></b><span>节点等级</span></div>
         </div>
-        <div class="tags" id="detailTags"></div>
         <div class="section"><h3>这里有什么</h3><p id="detailLook"></p></div>
         <div class="section"><h3>夜游提示</h3><p id="detailTip"></p></div>
         <button class="primary" id="researchBtn">进入全景浏览与调研问卷</button>
@@ -873,7 +872,6 @@
     document.getElementById("detailTime").textContent=node.time;
     document.getElementById("detailStay").textContent=node.stay;
     document.getElementById("detailLevel").textContent=node.level;
-    document.getElementById("detailTags").innerHTML=node.tags.map(t=>`<span class="tag">${t}</span>`).join("");
     document.getElementById("detailLook").textContent=node.look;
     document.getElementById("detailTip").textContent=node.tip;
     document.getElementById("focusBtn").onclick=()=>map&&map.setZoomAndCenter(18,[node.lng,node.lat]);
