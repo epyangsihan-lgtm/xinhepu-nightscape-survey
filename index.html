@@ -127,7 +127,7 @@
     }
     .detail.open{transform:translateX(0)}
     .detail-scroll{height:100%;overflow:auto;padding-bottom:20px}
-    .hero{position:relative;height:275px;overflow:hidden;background:#263136}
+    .hero{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#263136}
     .hero svg,.hero img{width:100%;height:100%;display:block}
     .hero img{object-fit:cover}
     .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,18,21,.92) 0,transparent 58%)}
@@ -362,7 +362,6 @@
           <div class="fact"><b id="detailLevel"></b><span>节点类型</span></div>
         </div>
         <div class="section"><h3>这里有什么</h3><p id="detailLook"></p></div>
-        <div class="section"><h3>夜游提示</h3><p id="detailTip"></p></div>
         <button class="primary" id="researchBtn">进入全景浏览与调研问卷</button>
         <button class="secondary" id="focusBtn">在地图上定位</button>
       </div>
@@ -873,7 +872,6 @@
     document.getElementById("detailStay").textContent=node.stay;
     document.getElementById("detailLevel").textContent=node.level;
     document.getElementById("detailLook").textContent=node.look;
-    document.getElementById("detailTip").textContent=node.tip;
     document.getElementById("focusBtn").onclick=()=>map&&map.setZoomAndCenter(18,[node.lng,node.lat]);
     document.getElementById("researchBtn").onclick=()=>startResearch(node.id);
     document.getElementById("detail").classList.add("open");
@@ -959,6 +957,7 @@
         navbar:["autorotate","zoom","fullscreen"],
         mousewheel:true,mousemove:true,
         minFov:30,maxFov:92,defaultZoomLvl:18,autorotateZoomLvl:18,
+        autorotateDelay:800,autorotateIdle:true,autorotateSpeed:"0.65rpm",
         defaultLong:scene.longitude||0
       });
       activePanoViewer.on("load-progress",(...args)=>{
