@@ -128,7 +128,8 @@
     .detail.open{transform:translateX(0)}
     .detail-scroll{height:100%;overflow:auto;padding-bottom:20px}
     .hero{position:relative;height:220px;overflow:hidden;background:#263136}
-    .hero svg{width:100%;height:100%;display:block}
+    .hero svg,.hero img{width:100%;height:100%;display:block}
+    .hero img{object-fit:cover}
     .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,18,21,.92) 0,transparent 58%)}
     .close{
       position:absolute;z-index:3;right:12px;top:12px;width:34px;height:34px;border-radius:50%;
@@ -482,7 +483,7 @@
     {id:"life",name:"30分钟 · 夜间生活路线",desc:"观察光与人的活动如何共同形成场景。",duration:"约30分钟",distance:"约1.0公里",nodes:["peizheng","xuguyuan","kuiyuan"]}
   ];
 
-  // 按用户提供的正式点位名称检索并设置的前期调研点。
+  // 按用户提供的正式点位名称检索并设置的光景节点。
   // “路口 / 支路 / 周边”等非单一 POI 名称，使用道路中心或相邻 POI 的代表坐标。
   const formalSurveySites=[
     {name:"庙前直街",lng:113.295647,lat:23.121518},
@@ -498,7 +499,7 @@
     {name:"新河浦三横路",lng:113.298762,lat:23.116763},
     {name:"东山堂",lng:113.297459,lat:23.122557}
   ];
-  // 每个前期调研点在详情卡片中显示的独立说明，可由本地点位校准工具同步更新。
+  // 每个光景节点在详情卡片中显示的独立说明，可由本地点位校准工具同步更新。
   const surveySiteDetails = [
   {
     "time": "待定",
@@ -586,9 +587,9 @@
   }
 ];
   const surveyPlaceholder={
-    category:"前期调研点",tags:[],
+    category:"",tags:[],
     time:"待定",stay:"待定",level:"调研节点",
-    summary:"",look:"",tip:""
+    summary:"",look:"",tip:"",heroImage:""
   };
   const initialSurveyNodeCount=nodes.length;
   nodes.forEach((node,index)=>Object.assign(node,formalSurveySites[index],surveyPlaceholder,surveySiteDetails[index]||{}));
@@ -824,9 +825,15 @@
     const node=nodes.find(n=>n.id===id); if(!node) return;
     activeNode=id;renderNodes();
     const hero=document.getElementById("hero");
-    hero.querySelectorAll(":scope>svg").forEach(s=>s.remove());
-    hero.insertAdjacentHTML("afterbegin",sceneSvg(node.scene,node.name));
-    document.getElementById("detailCategory").textContent=node.category;
+    hero.querySelectorAll(":scope>svg,:scope>img").forEach(s=>s.remove());
+    if(node.heroImage){
+      const image=document.createElement("img");
+      image.src=node.heroImage;image.alt=`${node.name}头图`;
+      hero.prepend(image);
+    }else hero.insertAdjacentHTML("afterbegin",sceneSvg(node.scene,node.name));
+    const category=document.getElementById("detailCategory");
+    category.textContent=node.category||"";
+    category.hidden=!node.category;
     document.getElementById("detailTitle").textContent=node.name;
     document.getElementById("detailLead").textContent=node.summary;
     document.getElementById("detailTime").textContent=node.time;
