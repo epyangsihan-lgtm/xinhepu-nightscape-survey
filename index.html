@@ -700,6 +700,8 @@
 ];
   const PANORAMA_TOURS={};
   surveyPanoramaTours.forEach((tour,index)=>{if(tour.length&&nodes[index])PANORAMA_TOURS[nodes[index].id]=tour});
+  const NON_SURVEY_NODE_ORDER=new Map(["chunyuan","peizheng","survey12"].map((id,index)=>[id,index]));
+  const isSurveyNode=node=>node&&!NON_SURVEY_NODE_ORDER.has(node.id);
   const EMBEDDED_PANORAMA_SCRIPTS={};
   nodes.forEach(node=>node.panoramaUrl=LOCAL_PANORAMAS[node.id]||PANO_SAMPLE_URL);
   const residentialPanoramaNode=nodes.find(node=>node.id==="survey11");
@@ -833,15 +835,22 @@
   }
 
   function renderNodes(){
-    const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory);
+    const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory).sort((a,b)=>{
+      const aOrder=NON_SURVEY_NODE_ORDER.get(a.id),bOrder=NON_SURVEY_NODE_ORDER.get(b.id);
+      if(aOrder===undefined&&bOrder===undefined)return 0;
+      if(aOrder===undefined)return -1;
+      if(bOrder===undefined)return 1;
+      return aOrder-bOrder;
+    });
     document.getElementById("nodeList").innerHTML=visible.map(n=>{
       const panoramaReady=Array.isArray(PANORAMA_TOURS[n.id])&&PANORAMA_TOURS[n.id].length>0;
+      const surveyNode=isSurveyNode(n);
       return `
         <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
           <div class="node-thumb">${n.heroImage?`<img src="${n.heroImage}" alt="${n.name}头图" loading="lazy">`:sceneSvg(n.scene,n.name)}</div>
           <div class="node-meta">
             <h3>${n.name}</h3><p>${n.look||"暂无节点说明"}</p>
-            <div class="tags"><span class="tag">360°实景</span><span class="tag">${panoramaReady?"全景已接入":"未接入"}</span></div>
+            <div class="tags">${surveyNode?`<span class="tag">360°实景</span><span class="tag">${panoramaReady?"全景已接入":"未接入"}</span>`:`<span class="tag">非问卷节点</span>`}</div>
           </div>
         </article>`;
     }).join("");
@@ -877,7 +886,9 @@
     document.getElementById("detailLevel").textContent=node.level;
     document.getElementById("detailLook").textContent=node.look;
     document.getElementById("focusBtn").onclick=()=>map&&map.setZoomAndCenter(18,[node.lng,node.lat]);
-    document.getElementById("researchBtn").onclick=()=>startResearch(node.id);
+    const researchButton=document.getElementById("researchBtn");
+    researchButton.hidden=!isSurveyNode(node);
+    researchButton.onclick=isSurveyNode(node)?()=>startResearch(node.id):null;
     document.getElementById("detail").classList.add("open");
     if(map) map.setZoomAndCenter(17.5,[node.lng,node.lat]);
   }
@@ -895,7 +906,7 @@
   }
 
   async function startResearch(id){
-    const node=nodes.find(n=>n.id===id); if(!node) return;
+    const node=nodes.find(n=>n.id===id); if(!node||!isSurveyNode(node)) return;
     destroyPanoViewer();
     researchNode=node;
     currentPanoramaSceneIndex=0;
