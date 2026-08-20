@@ -1096,7 +1096,7 @@
     viewer.rotate({longitude:Number(scene.longitude)||0,latitude:0});
     panoramaAutorotateTimer=setTimeout(()=>{
       if(activePanoViewer===viewer) viewer.startAutorotate();
-    },4500);
+    },500);
   }
 
   async function switchPanoramaScene(direction){
