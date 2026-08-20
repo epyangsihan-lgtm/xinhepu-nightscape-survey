@@ -127,7 +127,7 @@
     }
     .detail.open{transform:translateX(0)}
     .detail-scroll{height:100%;overflow:auto;padding-bottom:20px}
-    .hero{position:relative;height:220px;overflow:hidden;background:#263136}
+    .hero{position:relative;height:275px;overflow:hidden;background:#263136}
     .hero svg,.hero img{width:100%;height:100%;display:block}
     .hero img{object-fit:cover}
     .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(13,18,21,.92) 0,transparent 58%)}
@@ -356,7 +356,6 @@
         </div>
       </div>
       <div class="body">
-        <p class="lead" id="detailLead"></p>
         <div class="facts">
           <div class="fact"><b id="detailTime"></b><span>推荐时段</span></div>
           <div class="fact"><b id="detailStay"></b><span>建议停留</span></div>
@@ -835,7 +834,6 @@
     category.textContent=node.category||"";
     category.hidden=!node.category;
     document.getElementById("detailTitle").textContent=node.name;
-    document.getElementById("detailLead").textContent=node.summary;
     document.getElementById("detailTime").textContent=node.time;
     document.getElementById("detailStay").textContent=node.stay;
     document.getElementById("detailLevel").textContent=node.level;
