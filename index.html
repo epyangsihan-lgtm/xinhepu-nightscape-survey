@@ -834,14 +834,17 @@
 
   function renderNodes(){
     const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory);
-    document.getElementById("nodeList").innerHTML=visible.map(n=>`
-      <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
-        <div class="node-thumb">${n.heroImage?`<img src="${n.heroImage}" alt="${n.name}头图" loading="lazy">`:sceneSvg(n.scene,n.name)}</div>
-        <div class="node-meta">
-          <h3>${n.name}</h3><p>${n.summary}</p>
-          <div class="tags">${n.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
-        </div>
-      </article>`).join("");
+    document.getElementById("nodeList").innerHTML=visible.map(n=>{
+      const panoramaReady=Array.isArray(PANORAMA_TOURS[n.id])&&PANORAMA_TOURS[n.id].length>0;
+      return `
+        <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
+          <div class="node-thumb">${n.heroImage?`<img src="${n.heroImage}" alt="${n.name}头图" loading="lazy">`:sceneSvg(n.scene,n.name)}</div>
+          <div class="node-meta">
+            <h3>${n.name}</h3><p>${n.look||"暂无节点说明"}</p>
+            <div class="tags"><span class="tag">360°实景</span><span class="tag">${panoramaReady?"全景已接入":"未接入"}</span></div>
+          </div>
+        </article>`;
+    }).join("");
     document.querySelectorAll(".node-card").forEach(card=>card.onclick=()=>openNode(card.dataset.id));
   }
 
