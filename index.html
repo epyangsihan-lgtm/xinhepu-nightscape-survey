@@ -97,6 +97,7 @@
     }
     .node-thumb{width:86px;height:78px;border-radius:10px;overflow:hidden;background:#202a2f}
     .node-thumb svg{width:100%;height:100%;display:block}
+    .node-thumb img{width:100%;height:100%;display:block;object-fit:cover}
     .node-meta h3{margin:2px 0 4px;font-size:14px}
     .node-meta p{
       margin:0;color:var(--muted);font-size:11px;line-height:1.55;
@@ -835,7 +836,7 @@
     const visible=nodes.filter(n=>currentCategory==="全部"||n.category===currentCategory);
     document.getElementById("nodeList").innerHTML=visible.map(n=>`
       <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
-        <div class="node-thumb">${sceneSvg(n.scene,n.name)}</div>
+        <div class="node-thumb">${n.heroImage?`<img src="${n.heroImage}" alt="${n.name}头图" loading="lazy">`:sceneSvg(n.scene,n.name)}</div>
         <div class="node-meta">
           <h3>${n.name}</h3><p>${n.summary}</p>
           <div class="tags">${n.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
