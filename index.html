@@ -874,7 +874,7 @@
       const surveyNode=isSurveyNode(n);
       return `
         <article class="node-card ${activeNode===n.id?"active":""}" data-id="${n.id}">
-          <div class="node-thumb">${n.heroImage?`<img src="${n.heroImage}" alt="${n.name}头图" loading="lazy">`:sceneSvg(n.scene,n.name)}</div>
+          <div class="node-thumb">${n.heroImage?`<img src="${coverThumbnail(n.heroImage)}" alt="${n.name}头图" loading="lazy" onerror="this.onerror=null;this.src='${n.heroImage}'">`:sceneSvg(n.scene,n.name)}</div>
           <div class="node-meta">
             <h3>${n.name}</h3><p>${n.look||"暂无节点说明"}</p>
             <div class="tags">${surveyNode?`<span class="tag">360°实景</span><span class="tag">${panoramaReady?"全景已接入":"未接入"}</span>`:`<span class="tag">非问卷节点</span>`}</div>
@@ -918,6 +918,10 @@
     researchButton.onclick=isSurveyNode(node)?()=>startResearch(node.id):null;
     document.getElementById("detail").classList.add("open");
     if(map) map.setZoomAndCenter(17.5,[node.lng,node.lat]);
+  }
+
+  function coverThumbnail(path){
+    return String(path||"").replace(/^assets\/covers\/(.+)\.(?:jpe?g|png|webp)$/i,"assets/covers/thumbs/$1_thumb.webp");
   }
 
   function isMobileLayout(){
