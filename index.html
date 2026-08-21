@@ -901,7 +901,8 @@
     hero.querySelectorAll(":scope>svg,:scope>img").forEach(s=>s.remove());
     if(node.heroImage){
       const image=document.createElement("img");
-      image.src=node.heroImage;image.alt=`${node.name}头图`;
+      image.src=coverDisplayImage(node.heroImage);image.alt=`${node.name}头图`;
+      image.onerror=()=>{image.onerror=null;image.src=node.heroImage;};
       hero.prepend(image);
     }else hero.insertAdjacentHTML("afterbegin",sceneSvg(node.scene,node.name));
     const category=document.getElementById("detailCategory");
@@ -922,6 +923,10 @@
 
   function coverThumbnail(path){
     return String(path||"").replace(/^assets\/covers\/(.+)\.(?:jpe?g|png|webp)$/i,"assets/covers/thumbs/$1_thumb.webp");
+  }
+
+  function coverDisplayImage(path){
+    return String(path||"").replace(/^assets\/covers\/(.+)\.(?:jpe?g|png|webp)$/i,"assets/covers/web/$1_web.webp");
   }
 
   function isMobileLayout(){
