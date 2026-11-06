@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第一站问卷</title>
+<style>html,body{height:100%;width:100%;margin:0;overflow:hidden;background:#fff;font-family:system-ui,sans-serif}#wjxFloatInsertBtn{display:none!important}#wjxiframe_ytyy{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-height:none!important;margin:0!important;border:0!important;border-radius:0!important;opacity:1!important;box-shadow:none!important}.layui-layer-iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important}.layui-layer-content,.layui-layer-content iframe{height:100%!important;width:100%!important}.layui-layer-title,.layui-layer-setwin,.layui-layer-shade{display:none!important}#status{padding:26px;color:#657071;font-size:13px}</style></head><body><div id="status">正在连接问卷星…</div>
+<script>
+(() => {
+  const nonce=new URLSearchParams(location.search).get('nonce')||'';
+  const requestedActivity=new URLSearchParams(location.search).get('activity');
+  const activity=/^[A-Za-z0-9]{3,40}$/.test(requestedActivity||'')?requestedActivity:'tqejcTG';
+  document.title=activity==='waEFtBG'?'完整问卷':'节点问卷';
+  let triggered=false;
+  function send(type){parent.postMessage({channel:'xinhepu-wjx',activity,nonce,type},location.origin);}
+  function observe(frame){if(!frame||frame.dataset.observed)return;frame.dataset.observed='1';frame.addEventListener('load',()=>{document.getElementById('status').hidden=true;send('ready');});}
+  const timer=setInterval(()=>{
+    const frame=document.querySelector('iframe');
+    observe(frame);
+    if(!triggered&&typeof window.wjxiframeboxshow==='function'&&window.jQuery){triggered=true;window.wjxiframeboxshow(3);}
+    else if(!triggered&&document.getElementById('wjxFloatInsertBtn')&&window.jQuery&&window.layer){triggered=true;document.getElementById('wjxFloatInsertBtn').click();}
+  },100);
+  window.addEventListener('message',event=>{
+    const frame=[...document.querySelectorAll('iframe')].find(frame=>frame.contentWindow===event.source);
+    if(!frame)return;
+    let origin;try{origin=new URL(frame.src).origin;}catch{return;}
+    if(event.origin!==origin||!['https://v.wjx.cn','https://www.wjx.cn'].includes(origin))return;
+    if(event.data==='submitSuccess')send('submitted');
+    if(event.data==='closeYtyyiframe')send('error');
+  });
+  window.addEventListener('pagehide',()=>clearInterval(timer));
+  // 浮动组件的依赖加载失败时，使用其同一问卷地址的标准 iframe 嵌入。
+  setTimeout(()=>{if(document.querySelector('iframe'))return;triggered=true;const frame=document.createElement('iframe');frame.id='wjxiframe_ytyy';frame.title=document.title;observe(frame);frame.src=`https://v.wjx.cn/vm/${activity}.aspx?isytyy=1&ytyyframe=1`;document.body.appendChild(frame);},5000);
+  const script=document.createElement('script');script.type='text/javascript';script.src=`https://www.wjx.cn/js/ap.js?activity=${activity}`;script.id='wjxFloatBtnJsCode';document.body.appendChild(script);
+  setTimeout(()=>{if(!document.querySelector('iframe')){clearInterval(timer);send('error');}},15000);
+})();
+</script>
+</body></html>

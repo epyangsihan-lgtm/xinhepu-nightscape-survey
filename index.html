@@ -6,6 +6,9 @@
   <meta name="description" content="新河浦夜间光景地图：沿着光，重新认识新河浦。" />
   <title>新河浦夜间光景地图</title>
   <link rel="stylesheet" href="assets/vendor/photo-sphere-viewer/photo-sphere-viewer.min.css" />
+  <link rel="stylesheet" href="assets/study-entry.css" />
+  <link rel="stylesheet" href="assets/node-survey.css" />
+  <link rel="stylesheet" href="assets/station-progress.css" />
 
   <style>
     :root{
@@ -323,6 +326,7 @@
     <nav class="nav">
       <button class="active">光景地图</button>
       <button onclick="switchPanel('routes')">推荐路线</button>
+      <button class="keep" onclick="openStudyEntry()">参与问卷调研</button>
       <button class="keep" onclick="showAbout()">关于项目</button>
     </nav>
   </header>
@@ -363,7 +367,7 @@
           <div class="fact"><b id="detailLevel"></b><span>节点类型</span></div>
         </div>
         <div class="section"><h3>这里有什么</h3><p id="detailLook"></p></div>
-        <button class="primary" id="researchBtn">进入全景浏览与调研问卷</button>
+        <button class="primary" id="researchBtn">进入全景浏览</button>
         <button class="secondary" id="focusBtn">在地图上定位</button>
       </div>
     </div>
@@ -375,7 +379,10 @@
       <h2>新河浦夜间光景地图</h2>
       <div class="sub">沿着光，重新认识新河浦</div>
       <p>光重新勾勒了建筑、街巷、树木与生活。<br>感受每一处值得停留的夜色。</p>
-      <button onclick="enterMap()">开始夜间漫游</button>
+      <div class="intro-actions">
+        <button onclick="enterMap()">开始夜间漫游</button>
+        <button class="intro-study-button" onclick="openStudyEntry()">参与问卷调研 <span aria-hidden="true">↗</span></button>
+      </div>
     </div>
   </div>
 
@@ -837,6 +844,10 @@
   let activePanoViewer = null;
   let currentPanoramaSceneIndex = 0;
   let panoramaAutorotateTimer = null;
+  // 调研入口中的全景预览只使用前三张；地图里的自由漫游仍使用完整图集。
+  let studyPreviewNodeId = null;
+  let studyRunActive = false;
+  let nodeSurveyMode = false;
   const compactMapMode=window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
   function sceneSvg(type,title=""){
     const palettes={
@@ -1028,16 +1039,20 @@
     activeNode=null;renderNodes();document.getElementById("detail").classList.remove("open");
   }
 
-  async function startResearch(id){
-    const node=nodes.find(n=>n.id===id); if(!node||!isSurveyNode(node)) return;
+  async function startResearch(id,options={}){
+    const node=(options.nodeSurvey?window.studySurveyNodes?.find(n=>n.id===id):null)||nodes.find(n=>n.id===id); if(!node||(!options.nodeSurvey&&!isSurveyNode(node))) return;
+    studyRunActive=!!options.studyRun;
+    nodeSurveyMode=!!options.nodeSurvey;
+    studyPreviewNodeId=(options.studyPreview||studyRunActive)?node.id:null;
     destroyPanoViewer();
     researchNode=node;
     currentPanoramaSceneIndex=0;
     document.getElementById("researchTitle").textContent=node.name;
     setResearchStep("pano");
+    document.querySelector(".research-progress").hidden=!studyRunActive;
     document.getElementById("researchBody").innerHTML=`
       <div class="pano-stage">
-        <div class="pano-viewer"><div id="panoViewer" aria-label="${node.name}全景图"></div></div>
+        <div class="pano-viewer"><div id="panoViewer" aria-label="全景图"></div></div>
         <div class="pano-loading" id="panoLoading" aria-live="polite">
           <div class="pano-loading-inner">
             <strong id="panoLoadingText">正在加载全景…</strong>
@@ -1051,11 +1066,19 @@
         </div>
       </div>
       <p class="pano-help">拖动图片可以进行360°环视，点击箭头浏览下一张图像</p>
-      <button class="primary" onclick="openWjxSurvey()">漫游完毕，回答问卷</button>`;
+      ${nodeSurveyMode
+        ? '<button class="primary" id="nodeSurveyAnswerButton" onclick="openNodeSurveyQuestions()" hidden>浏览完成，填写本节点问卷 →</button>'
+        : studyRunActive
+        ? '<p class="pano-help" id="studyViewStatus" role="status">Demo 示例体验：请依次浏览三张全景，再回答两道选择题。</p><button class="primary" id="studyAnswerButton" onclick="showStudyQuestions()" disabled>浏览三张全景后进入答题</button>'
+        : studyPreviewNodeId
+        ? '<p class="pano-help">当前为节点漫游预览。两道选择题确认后，将在此接入答题与下一节点。</p><button class="primary" onclick="closeResearch()">返回调研入口</button>'
+        : ''}`;
+    document.getElementById("panoViewer").setAttribute('aria-label',`${node.name}全景图`);
     document.getElementById("researchModal").classList.add("open");
     updatePanoramaNavigation(node);
     try{
       await ensureLocalPanoramaReadable(node);
+      if(researchNode!==node) return;
       renderPanorama(node);
     }catch(error){
       console.error(error);
@@ -1080,6 +1103,7 @@
 
   function renderPanorama(node){
     requestAnimationFrame(()=>{
+      if(researchNode!==node) return;
       const container=document.getElementById("panoViewer");
       if(!container) return;
       if(!window.PhotoSphereViewer){
@@ -1090,7 +1114,7 @@
       const scene=getCurrentPanoramaScene(node);
       const panoramaSource=embedded||getOptimizedPanoramaUrl(scene.panoramaUrl||node.panoramaUrl);
       showPanoramaLoading(4);
-      activePanoViewer=new PhotoSphereViewer.Viewer({
+      const viewer=new PhotoSphereViewer.Viewer({
         container,panorama:panoramaSource,
         navbar:["autorotate","zoom","fullscreen"],
         mousewheel:true,mousemove:true,
@@ -1098,17 +1122,22 @@
         autorotateDelay:null,autorotateIdle:false,autorotateSpeed:"0.65rpm",
         defaultLong:scene.longitude||0
       });
-      activePanoViewer.on("load-progress",(...args)=>{
+      activePanoViewer=viewer;
+      viewer.on("load-progress",(...args)=>{
+        if(activePanoViewer!==viewer) return;
         const progress=[...args].reverse().find(value=>typeof value==="number");
         if(Number.isFinite(progress)) showPanoramaLoading(progress);
       });
       const onPanoramaReady=()=>{
-        setPanoramaStartDirection(activePanoViewer,getCurrentPanoramaScene(node));
+        if(activePanoViewer!==viewer||researchNode!==node) return;
+        setPanoramaStartDirection(viewer,getCurrentPanoramaScene(node));
         hidePanoramaLoading();
         preloadAdjacentPanorama(node);
+        if(studyRunActive) window.onStudySceneReady?.(node.id,currentPanoramaSceneIndex);
+        if(nodeSurveyMode) window.onNodeSurveySceneReady?.(node.id,currentPanoramaSceneIndex);
       };
-      activePanoViewer.on("ready",onPanoramaReady);
-      activePanoViewer.on("panorama-loaded",onPanoramaReady);
+      viewer.on("ready",onPanoramaReady);
+      viewer.on("panorama-loaded",onPanoramaReady);
     });
   }
 
@@ -1165,7 +1194,8 @@
   }
 
   function getPanoramaTour(node){
-    return PANORAMA_TOURS[node.id]||[{label:node.name,panoramaUrl:node.panoramaUrl,longitude:0}];
+    const tour=node.surveyScenes||PANORAMA_TOURS[node.id]||[{label:node.name,panoramaUrl:node.panoramaUrl,longitude:0}];
+    return studyPreviewNodeId===node.id?tour.slice(0,3):tour;
   }
 
   function getCurrentPanoramaScene(node){
@@ -1191,28 +1221,35 @@
     viewer.stopAutorotate();
     viewer.rotate({longitude:Number(scene.longitude)||0,latitude:0});
     panoramaAutorotateTimer=setTimeout(()=>{
-      if(activePanoViewer===viewer) viewer.startAutorotate();
+      if(activePanoViewer===viewer&&!(document.body.classList.contains('sequence-active')&&document.getElementById('studyStage1')?.hidden)) viewer.startAutorotate();
     },500);
   }
 
   async function switchPanoramaScene(direction){
     if(!researchNode) return;
-    const tour=getPanoramaTour(researchNode);
+    const node=researchNode;
+    const viewer=activePanoViewer;
+    const tour=getPanoramaTour(node);
     const target=Math.max(0,Math.min(tour.length-1,currentPanoramaSceneIndex+direction));
     if(target===currentPanoramaSceneIndex) return;
     currentPanoramaSceneIndex=target;
+    if(nodeSurveyMode&&document.getElementById('nodeSurveyAnswerButton'))document.getElementById('nodeSurveyAnswerButton').hidden=true;
     updatePanoramaNavigation(researchNode);
     const scene=getCurrentPanoramaScene(researchNode);
     const source=getOptimizedPanoramaUrl(scene.panoramaUrl||researchNode.panoramaUrl);
-    if(activePanoViewer&&typeof activePanoViewer.setPanorama==="function"){
+    if(viewer&&typeof viewer.setPanorama==="function"){
       showPanoramaLoading(4);
       try{
-        await activePanoViewer.setPanorama(source,{longitude:scene.longitude||0},false);
-        setPanoramaStartDirection(activePanoViewer,scene);
+        await viewer.setPanorama(source,{longitude:scene.longitude||0,transition:false});
+        if(activePanoViewer!==viewer||researchNode!==node) return;
+        setPanoramaStartDirection(viewer,scene);
         hidePanoramaLoading();
         preloadAdjacentPanorama(researchNode);
         return;
-      }catch(error){console.warn("优化全景切换失败，尝试重新载入。",error)}
+      }catch(error){
+        if(activePanoViewer!==viewer||researchNode!==node) return;
+        console.warn("优化全景切换失败，尝试重新载入。",error);
+      }
     }
     destroyPanoViewer();
     renderPanorama(researchNode);
@@ -1220,8 +1257,17 @@
 
   function destroyPanoViewer(){
     if(panoramaAutorotateTimer){clearTimeout(panoramaAutorotateTimer);panoramaAutorotateTimer=null}
-    if(activePanoViewer&&typeof activePanoViewer.destroy==="function") activePanoViewer.destroy();
+    const viewer=activePanoViewer;
     activePanoViewer=null;
+    if(!viewer||typeof viewer.destroy!=="function") return;
+    viewer.stopAutorotate();
+    // PSV 4 在图片仍在读取时销毁会令其异步回调访问已删除的 loader。
+    // 先取消读取，等播放器完成清理后再释放实例。
+    const pending=viewer.prop?.loadingPromise;
+    if(pending){
+      viewer.textureLoader.abortLoading();
+      Promise.resolve(pending).catch(()=>{}).then(()=>viewer.destroy());
+    }else viewer.destroy();
   }
 
   function openWjxSurvey(){
@@ -1305,9 +1351,17 @@
   }
 
   function closeResearch(){
+    const exitSequence=nodeSurveyMode&&document.body.classList.contains('sequence-active');
     destroyPanoViewer();
     document.getElementById("researchModal").classList.remove("open");
     researchNode=null;
+    const returnToStudy=!!studyPreviewNodeId;
+    studyPreviewNodeId=null;
+    studyRunActive=false;
+    nodeSurveyMode=false;
+    document.querySelector(".research-progress").hidden=false;
+    if(returnToStudy) document.getElementById("studyPreviewButton")?.focus();
+    if(exitSequence)window.exitStudySequence?.();
   }
 
   function showRoute(id){
@@ -1364,5 +1418,9 @@
 
   loadAmap();
 </script>
+<script src="assets/flow-settings.js"></script>
+<script src="assets/study-entry.js"></script>
+<script src="assets/node-survey.js"></script>
+<script src="assets/complete-survey.js"></script>
 </body>
 </html>

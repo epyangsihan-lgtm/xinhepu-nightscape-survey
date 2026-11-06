@@ -1,0 +1,156 @@
+{
+  "revision": "fbbb130e-eb85-45f1-b1a4-5ae17f496c79",
+  "completeActivity": "waEFtBG",
+  "stations": [
+    {
+      "id": "flow-1",
+      "name": "一方东山",
+      "sourceNodeId": "jianyuan",
+      "activity": "tqejcTG",
+      "scenes": [
+        {
+          "label": "1-1",
+          "panoramaUrl": "assets/panoramas/cal_03_1787230370265.jpg",
+          "longitude": 0.052478
+        },
+        {
+          "label": "2-1",
+          "panoramaUrl": "assets/panoramas/cal_03_1787228376067.jpg",
+          "longitude": 2.729105
+        },
+        {
+          "label": "3-1",
+          "panoramaUrl": "assets/panoramas/cal_03_1787228467895.jpg",
+          "longitude": 5.514414
+        }
+      ]
+    },
+    {
+      "id": "flow-2",
+      "name": "署前路路口",
+      "sourceNodeId": "kuiyuan",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-3",
+      "name": "东华东路骑楼街",
+      "sourceNodeId": "xuguyuan",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-4",
+      "name": "新河浦休闲广场",
+      "sourceNodeId": "river",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-5",
+      "name": "新河浦涌碧道",
+      "sourceNodeId": "survey07",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-6",
+      "name": "中共三大会址",
+      "sourceNodeId": "survey08",
+      "activity": "",
+      "scenes": [
+        {
+          "label": "5-1",
+          "panoramaUrl": "assets/panoramas/cal_08_1787139889917.jpg",
+          "longitude": 2.624875
+        },
+        {
+          "label": "4-1",
+          "panoramaUrl": "assets/panoramas/cal_08_1787139884041.jpg",
+          "longitude": 2.103996
+        },
+        {
+          "label": "7-1",
+          "panoramaUrl": "assets/panoramas/cal_08_1787849135592.jpg",
+          "longitude": 6.145432
+        }
+      ]
+    },
+    {
+      "id": "flow-7",
+      "name": "培正路斜坡",
+      "sourceNodeId": "survey09",
+      "activity": "",
+      "scenes": [
+        {
+          "label": "1-1",
+          "panoramaUrl": "assets/panoramas/cal_09_1787806892156.jpg",
+          "longitude": 0
+        },
+        {
+          "label": "2-1",
+          "panoramaUrl": "assets/panoramas/cal_09_1787806898183.jpg",
+          "longitude": 0
+        },
+        {
+          "label": "3-1",
+          "panoramaUrl": "assets/panoramas/cal_09_1787806903531.jpg",
+          "longitude": 0
+        }
+      ]
+    },
+    {
+      "id": "flow-8",
+      "name": "东山百年校园",
+      "sourceNodeId": "survey10",
+      "activity": "",
+      "scenes": [
+        {
+          "label": "1-1",
+          "panoramaUrl": "assets/panoramas/cal_10_1787912357926.jpg",
+          "longitude": 6.17823
+        },
+        {
+          "label": "2-1",
+          "panoramaUrl": "assets/panoramas/cal_10_1787912364607.jpg",
+          "longitude": 0
+        },
+        {
+          "label": "3-1",
+          "panoramaUrl": "assets/panoramas/cal_10_1787912371385.jpg",
+          "longitude": 3.354352
+        }
+      ]
+    },
+    {
+      "id": "flow-9",
+      "name": "新河浦三横路",
+      "sourceNodeId": "survey11",
+      "activity": "",
+      "scenes": [
+        {
+          "label": "1-1",
+          "panoramaUrl": "assets/panoramas/cal_11_1787151488536.jpg",
+          "longitude": 2.925217
+        },
+        {
+          "label": "2-1",
+          "panoramaUrl": "assets/panoramas/cal_11_1787151494655.jpg",
+          "longitude": 1.399421
+        },
+        {
+          "label": "3-1",
+          "panoramaUrl": "assets/panoramas/cal_11_1787151777534.jpg",
+          "longitude": 2.944527
+        }
+      ]
+    },
+    {
+      "id": "flow-10",
+      "name": "",
+      "sourceNodeId": "",
+      "activity": "",
+      "scenes": []
+    }
+  ]
+}
