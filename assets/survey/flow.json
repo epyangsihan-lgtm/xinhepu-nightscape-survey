@@ -1,12 +1,19 @@
 {
-  "revision": "a102600e-8619-44b1-8145-ef7c4d0e685c",
+  "revision": "9a2c93c7-5dba-4ab6-89e2-643bec44f5be",
   "completeActivity": "waEFtBG",
   "stations": [
     {
       "id": "flow-1",
+      "name": "庙前西街东段（署前路路口）",
+      "sourceNodeId": "kuiyuan",
+      "activity": "tqejcTG",
+      "scenes": []
+    },
+    {
+      "id": "flow-2",
       "name": "一方东山",
       "sourceNodeId": "jianyuan",
-      "activity": "tqejcTG",
+      "activity": "",
       "scenes": [
         {
           "label": "2-1",
@@ -24,13 +31,6 @@
           "longitude": 0.038306
         }
       ]
-    },
-    {
-      "id": "flow-2",
-      "name": "署前路路口",
-      "sourceNodeId": "kuiyuan",
-      "activity": "YDjvn9M",
-      "scenes": []
     },
     {
       "id": "flow-3",
