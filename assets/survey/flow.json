@@ -1,5 +1,5 @@
 {
-  "revision": "287cb2a5-e829-4c22-8d08-c1b3abe069fd",
+  "revision": "790be81c-372d-4b56-b4a2-0b98e5c25b6b",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -29,7 +29,7 @@
       "id": "flow-2",
       "name": "一方东山",
       "sourceNodeId": "jianyuan",
-      "activity": "",
+      "activity": "YDjvn9M",
       "scenes": [
         {
           "label": "2-1",
