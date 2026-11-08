@@ -1,5 +1,5 @@
 {
-  "revision": "e1d9fc0f-88ed-455b-8962-e1f0be898ff7",
+  "revision": "cb90bfe7-c67e-45d2-ba70-9f7b2608fcca",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -27,7 +27,7 @@
     },
     {
       "id": "flow-2",
-      "name": "一方东山",
+      "name": "庙前西街西段（一方东山）",
       "sourceNodeId": "jianyuan",
       "activity": "YDjvn9M",
       "scenes": [
@@ -57,7 +57,7 @@
     },
     {
       "id": "flow-4",
-      "name": "新河浦休闲广场",
+      "name": "东山印象广场",
       "sourceNodeId": "river",
       "activity": "",
       "scenes": []
@@ -94,7 +94,7 @@
     },
     {
       "id": "flow-7",
-      "name": "培正路斜坡",
+      "name": "培正路南段",
       "sourceNodeId": "survey09",
       "activity": "",
       "scenes": [
@@ -117,7 +117,7 @@
     },
     {
       "id": "flow-8",
-      "name": "东山百年校园",
+      "name": "培正路北段（培正中学）",
       "sourceNodeId": "survey10",
       "activity": "",
       "scenes": [
@@ -163,7 +163,7 @@
     },
     {
       "id": "flow-10",
-      "name": "",
+      "name": "龟岗大马路",
       "sourceNodeId": "",
       "activity": "",
       "scenes": []
