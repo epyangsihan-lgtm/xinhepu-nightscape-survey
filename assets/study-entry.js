@@ -12,13 +12,14 @@
   let active=false;
   const stops=document.getElementById('stationStops');
   for(let index=0;index<10;index++){
-    const stop=document.createElement('li');stop.dataset.station=String(index);stop.innerHTML=`<span class="station-dot" aria-hidden="true">${index+1}</span><span class="station-label">第 ${index+1} 站</span>`;stops.appendChild(stop);
+    const stop=document.createElement('li');stop.dataset.station=String(index);stop.innerHTML=`<button type="button" class="station-dot" aria-label="浏览第${index+1}站">${index+1}</button><span class="station-label">第 ${index+1} 站</span>`;stop.querySelector('button').onclick=()=>window.selectSurveyStation?.(index);stops.appendChild(stop);
   }
   window.setSurveyStation=(index,completed=[])=>{
     stops.querySelectorAll('li').forEach((stop,position)=>{
-      const done=completed.includes(position);stop.classList.toggle('done',done);stop.classList.toggle('current',position===index&&!done);
+      const done=completed.includes(position);stop.classList.toggle('done',done);stop.classList.toggle('current',position===index);
       stop.setAttribute('aria-label',`第${position+1}站，${done?'已完成':position===index?'当前站':'待完成'}`);
-      if(position===index&&!done)stop.setAttribute('aria-current','step');else stop.removeAttribute('aria-current');
+      if(position===index)stop.setAttribute('aria-current','step');else stop.removeAttribute('aria-current');
+      const button=stop.querySelector('button');if(position===index)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');
       stop.querySelector('.station-dot').textContent=done?'✓':String(position+1);
     });
     document.getElementById('stationPosition').textContent=`${index+1} / 10`;
