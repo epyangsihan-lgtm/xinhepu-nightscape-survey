@@ -1,5 +1,5 @@
 {
-  "revision": "e9518df4-ffcf-4a8a-9f0a-b6689df5e03d",
+  "revision": "6d35c4c3-d52b-4090-bca2-a3125932680e",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -50,6 +50,13 @@
     },
     {
       "id": "flow-3",
+      "name": "东山印象广场",
+      "sourceNodeId": "river",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-4",
       "name": "东华东路骑楼街",
       "sourceNodeId": "xuguyuan",
       "activity": "",
@@ -70,13 +77,6 @@
           "longitude": 1.041609
         }
       ]
-    },
-    {
-      "id": "flow-4",
-      "name": "东山印象广场",
-      "sourceNodeId": "river",
-      "activity": "",
-      "scenes": []
     },
     {
       "id": "flow-5",
