@@ -1,5 +1,5 @@
 {
-  "revision": "b7b8f98f-f3c0-494d-a582-4857d493956d",
+  "revision": "e9518df4-ffcf-4a8a-9f0a-b6689df5e03d",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -53,7 +53,23 @@
       "name": "东华东路骑楼街",
       "sourceNodeId": "xuguyuan",
       "activity": "",
-      "scenes": []
+      "scenes": [
+        {
+          "label": "02",
+          "panoramaUrl": "assets/panoramas/cal_05_1794810435458.jpg",
+          "longitude": 2.063449
+        },
+        {
+          "label": "03",
+          "panoramaUrl": "assets/panoramas/cal_05_1794810450005.jpg",
+          "longitude": 5.20648
+        },
+        {
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_05_1794810463284.jpg",
+          "longitude": 1.041609
+        }
+      ]
     },
     {
       "id": "flow-4",
