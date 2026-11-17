@@ -1,5 +1,5 @@
 {
-  "revision": "6d35c4c3-d52b-4090-bca2-a3125932680e",
+  "revision": "62236cdb-9cc3-4a39-b693-840b0f87076f",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -83,7 +83,23 @@
       "name": "新河浦涌碧道",
       "sourceNodeId": "survey07",
       "activity": "",
-      "scenes": []
+      "scenes": [
+        {
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_07_1794929198013.jpg",
+          "longitude": 6.233575
+        },
+        {
+          "label": "03",
+          "panoramaUrl": "assets/panoramas/cal_07_1794929180469.jpg",
+          "longitude": 0.275254
+        },
+        {
+          "label": "01",
+          "panoramaUrl": "assets/panoramas/cal_07_1794929161664.jpg",
+          "longitude": 0.019661
+        }
+      ]
     },
     {
       "id": "flow-6",
