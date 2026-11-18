@@ -1,5 +1,5 @@
 {
-  "revision": "f7811195-540f-4bb9-9025-e62558aef220",
+  "revision": "4aced57a-cd82-4f59-ac89-f8770cbb1532",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -138,19 +138,19 @@
       "activity": "",
       "scenes": [
         {
-          "label": "1-1",
-          "panoramaUrl": "assets/panoramas/cal_09_1787806892156.jpg",
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_09_1794922292173.jpg",
           "longitude": 0
         },
         {
-          "label": "2-1",
-          "panoramaUrl": "assets/panoramas/cal_09_1787806898183.jpg",
+          "label": "03",
+          "panoramaUrl": "assets/panoramas/cal_09_1794922274109.jpg",
           "longitude": 0
         },
         {
-          "label": "3-1",
-          "panoramaUrl": "assets/panoramas/cal_09_1787806903531.jpg",
-          "longitude": 0
+          "label": "02",
+          "panoramaUrl": "assets/panoramas/cal_09_1794922264632.jpg",
+          "longitude": 3.467429
         }
       ]
     },
