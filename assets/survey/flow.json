@@ -1,5 +1,5 @@
 {
-  "revision": "1efd0fed-9dda-4203-bb03-8c19e31fe8b6",
+  "revision": "f7811195-540f-4bb9-9025-e62558aef220",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -50,8 +50,8 @@
     },
     {
       "id": "flow-3",
-      "name": "东山印象广场",
-      "sourceNodeId": "river",
+      "name": "均益路内街",
+      "sourceNodeId": "peizheng",
       "activity": "",
       "scenes": []
     },
@@ -80,6 +80,13 @@
     },
     {
       "id": "flow-5",
+      "name": "东山印象广场",
+      "sourceNodeId": "river",
+      "activity": "",
+      "scenes": []
+    },
+    {
+      "id": "flow-6",
       "name": "新河浦涌碧道",
       "sourceNodeId": "survey07",
       "activity": "",
@@ -102,7 +109,7 @@
       ]
     },
     {
-      "id": "flow-6",
+      "id": "flow-7",
       "name": "中共三大会址",
       "sourceNodeId": "survey08",
       "activity": "",
@@ -125,7 +132,7 @@
       ]
     },
     {
-      "id": "flow-7",
+      "id": "flow-8",
       "name": "培正路南段",
       "sourceNodeId": "survey09",
       "activity": "",
@@ -148,7 +155,7 @@
       ]
     },
     {
-      "id": "flow-8",
+      "id": "flow-9",
       "name": "培正路北段（培正中学）",
       "sourceNodeId": "survey10",
       "activity": "",
@@ -171,34 +178,27 @@
       ]
     },
     {
-      "id": "flow-9",
+      "id": "flow-10",
       "name": "新河浦三横路",
       "sourceNodeId": "survey11",
       "activity": "",
       "scenes": [
         {
-          "label": "1-1",
-          "panoramaUrl": "assets/panoramas/cal_11_1787151488536.jpg",
-          "longitude": 2.925217
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_11_1794932294265.jpg",
+          "longitude": 0.093936
         },
         {
-          "label": "2-1",
-          "panoramaUrl": "assets/panoramas/cal_11_1787151494655.jpg",
-          "longitude": 1.399421
+          "label": "03",
+          "panoramaUrl": "assets/panoramas/cal_11_1794932272798.jpg",
+          "longitude": 3.200397
         },
         {
-          "label": "3-1",
-          "panoramaUrl": "assets/panoramas/cal_11_1787151777534.jpg",
-          "longitude": 2.944527
+          "label": "02",
+          "panoramaUrl": "assets/panoramas/cal_11_1794930856468.jpg",
+          "longitude": 0.773332
         }
       ]
-    },
-    {
-      "id": "flow-10",
-      "name": "龟岗大马路",
-      "sourceNodeId": "",
-      "activity": "",
-      "scenes": []
     }
   ]
 }
