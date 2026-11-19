@@ -1,5 +1,5 @@
 {
-  "revision": "46a0f8e4-b8a6-4001-aece-ece8d0923c73",
+  "revision": "c6f85227-3d1a-44b3-add6-efe50309f3c5",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -158,7 +158,7 @@
       "id": "flow-9",
       "name": "培正路北段（培正中学）",
       "sourceNodeId": "survey10",
-      "activity": "",
+      "activity": "YG3Q8O4",
       "scenes": [
         {
           "label": "6-1",
