@@ -1,5 +1,5 @@
 {
-  "revision": "a91eecbc-237b-4a74-8b16-c80bca2de99d",
+  "revision": "ecd739a2-6bf6-4850-9528-8cccecd342af",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -52,7 +52,7 @@
       "id": "flow-3",
       "name": "均益路内街",
       "sourceNodeId": "peizheng",
-      "activity": "",
+      "activity": "rQrXg8y",
       "scenes": []
     },
     {
