@@ -1,5 +1,5 @@
 {
-  "revision": "7d3c5970-9d7d-49dd-9ee6-5d84ff7b6f0b",
+  "revision": "19db8d5c-3ff8-4757-9a62-4952f7b874b8",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -89,7 +89,7 @@
       "id": "flow-6",
       "name": "新河浦涌碧道",
       "sourceNodeId": "survey07",
-      "activity": "",
+      "activity": "O23qFYD",
       "scenes": [
         {
           "label": "05",
