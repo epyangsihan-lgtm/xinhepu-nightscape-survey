@@ -1,5 +1,5 @@
 {
-  "revision": "c6f85227-3d1a-44b3-add6-efe50309f3c5",
+  "revision": "b19afe51-2b24-45a1-9aaf-8d04691115cd",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -181,7 +181,7 @@
       "id": "flow-10",
       "name": "新河浦三横路",
       "sourceNodeId": "survey11",
-      "activity": "",
+      "activity": "Q0oIKVe",
       "scenes": [
         {
           "label": "05",
