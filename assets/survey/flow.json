@@ -1,5 +1,5 @@
 {
-  "revision": "19db8d5c-3ff8-4757-9a62-4952f7b874b8",
+  "revision": "7ea2b713-b236-436c-ac5b-803f4d51a829",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -112,7 +112,7 @@
       "id": "flow-7",
       "name": "中共三大会址",
       "sourceNodeId": "survey08",
-      "activity": "",
+      "activity": "t18oxEQ",
       "scenes": [
         {
           "label": "1-1",
