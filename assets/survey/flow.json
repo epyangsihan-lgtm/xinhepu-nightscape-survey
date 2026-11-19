@@ -1,5 +1,5 @@
 {
-  "revision": "7ea2b713-b236-436c-ac5b-803f4d51a829",
+  "revision": "46a0f8e4-b8a6-4001-aece-ece8d0923c73",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -135,7 +135,7 @@
       "id": "flow-8",
       "name": "培正路南段",
       "sourceNodeId": "survey09",
-      "activity": "",
+      "activity": "tVQ8l4E",
       "scenes": [
         {
           "label": "05",
