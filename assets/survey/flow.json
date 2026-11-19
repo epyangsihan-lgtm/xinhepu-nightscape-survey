@@ -1,5 +1,5 @@
 {
-  "revision": "ecd739a2-6bf6-4850-9528-8cccecd342af",
+  "revision": "298c17d3-729c-40f7-b992-4855a8060d88",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -59,7 +59,7 @@
       "id": "flow-4",
       "name": "东华东路骑楼街",
       "sourceNodeId": "xuguyuan",
-      "activity": "",
+      "activity": "Ot3qVvD",
       "scenes": [
         {
           "label": "02",
