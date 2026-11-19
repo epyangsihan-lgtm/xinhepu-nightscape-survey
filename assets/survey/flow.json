@@ -1,5 +1,5 @@
 {
-  "revision": "73a58bcf-731e-457c-bec6-5abe119f7d4b",
+  "revision": "a91eecbc-237b-4a74-8b16-c80bca2de99d",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -29,7 +29,7 @@
       "id": "flow-2",
       "name": "庙前西街西段（一方东山）",
       "sourceNodeId": "jianyuan",
-      "activity": "YDjvn9M",
+      "activity": "Q5eodAX",
       "scenes": [
         {
           "label": "01",
