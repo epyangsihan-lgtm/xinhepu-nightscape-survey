@@ -1,5 +1,5 @@
 {
-  "revision": "298c17d3-729c-40f7-b992-4855a8060d88",
+  "revision": "7d3c5970-9d7d-49dd-9ee6-5d84ff7b6f0b",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -82,7 +82,7 @@
       "id": "flow-5",
       "name": "东山印象广场",
       "sourceNodeId": "river",
-      "activity": "",
+      "activity": "QxeoIvf",
       "scenes": []
     },
     {
