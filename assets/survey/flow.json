@@ -1,5 +1,5 @@
 {
-  "revision": "3fa185f0-7d0e-42c5-a8a1-c04c1a799c6c",
+  "revision": "7365016f-61e9-4560-9166-2573ecbf70a4",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -111,9 +111,9 @@
           "longitude": 0.170456
         },
         {
-          "label": "06",
-          "panoramaUrl": "assets/panoramas/cal_06_1795613537939.jpg",
-          "longitude": 0.293032
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_06_1795613518219.jpg",
+          "longitude": 0.699057
         }
       ]
     },
