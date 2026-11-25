@@ -1,5 +1,5 @@
 {
-  "revision": "4f2c3424-6d59-49e3-a6ec-2a5bc664e085",
+  "revision": "b72267fe-c119-4fc9-b9f9-336e81052d9a",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -53,7 +53,23 @@
       "name": "均益路内街",
       "sourceNodeId": "peizheng",
       "activity": "rQrXg8y",
-      "scenes": []
+      "scenes": [
+        {
+          "label": "02",
+          "panoramaUrl": "assets/panoramas/cal_04_1795067960622.jpg",
+          "longitude": 0.194425
+        },
+        {
+          "label": "03",
+          "panoramaUrl": "assets/panoramas/cal_04_1795158291927.jpg",
+          "longitude": 0.87819
+        },
+        {
+          "label": "05",
+          "panoramaUrl": "assets/panoramas/cal_04_1795067970784.jpg",
+          "longitude": 0.849791
+        }
+      ]
     },
     {
       "id": "flow-4",
