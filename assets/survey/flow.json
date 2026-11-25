@@ -1,5 +1,5 @@
 {
-  "revision": "b72267fe-c119-4fc9-b9f9-336e81052d9a",
+  "revision": "87be10b0-3c69-403e-977b-1caed673df8f",
   "completeActivity": "waEFtBG",
   "stations": [
     {
@@ -99,7 +99,23 @@
       "name": "东山印象广场",
       "sourceNodeId": "river",
       "activity": "QxeoIvf",
-      "scenes": []
+      "scenes": [
+        {
+          "label": "01",
+          "panoramaUrl": "assets/panoramas/cal_06_1795613444535.jpg",
+          "longitude": 1.812783
+        },
+        {
+          "label": "04",
+          "panoramaUrl": "assets/panoramas/cal_06_1795613500340.jpg",
+          "longitude": 0.170456
+        },
+        {
+          "label": "06",
+          "panoramaUrl": "assets/panoramas/cal_06_1795613537939.jpg",
+          "longitude": 0.293032
+        }
+      ]
     },
     {
       "id": "flow-6",
