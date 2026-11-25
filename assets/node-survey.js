@@ -28,7 +28,12 @@
  };
  window.onNodeSurveySceneReady=(id,sceneIndex)=>{
   if(!nodeSurveyMode||id!==current()?.id)return;viewed.add(sceneIndex);
-  const button=$('#nodeSurveyAnswerButton');if(button){button.hidden=!(viewed.size===3&&sceneIndex===2);button.disabled=!current().activity;button.textContent=current().activity?'浏览完成，填写本节点问卷 →':'本节点问卷待接入';}
+  const button=$('#nodeSurveyAnswerButton');
+  if(button){
+   button.hidden=!(viewed.size===3&&sceneIndex===2);
+   button.disabled=!current().activity;
+   button.textContent=current().activity?'填写本场景问卷 →':'本场景问卷待接入';
+  }
  };
  function finish(){
   clear();if(!completed.includes(index))completed.push(index);window.setSurveyStation?.(index,completed);

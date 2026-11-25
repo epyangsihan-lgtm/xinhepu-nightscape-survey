@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="assets/vendor/photo-sphere-viewer/photo-sphere-viewer.min.css" />
   <link rel="stylesheet" href="assets/study-entry.css" />
   <link rel="stylesheet" href="assets/node-survey.css" />
-  <link rel="stylesheet" href="assets/station-progress.css?v=free-stations-1" />
+  <link rel="stylesheet" href="assets/station-progress.css?v=survey-cta-1" />
 
   <style>
     :root{
@@ -1172,12 +1172,13 @@
         <div class="pano-scene-badge" id="panoSceneBadge"></div>
         <div class="ground-nav" id="groundNav">
           <button class="ground-arrow next" id="panoNext" type="button" onclick="switchPanoramaScene(1)" aria-label="进入下一张全景" title="进入下一张全景"></button>
+          ${nodeSurveyMode ? '<button class="primary pano-survey-action" id="nodeSurveyAnswerButton" type="button" onclick="openNodeSurveyQuestions()" hidden>填写本场景问卷 →</button>' : ''}
           <button class="ground-arrow prev" id="panoPrev" type="button" onclick="switchPanoramaScene(-1)" aria-label="退回上一张全景" title="退回上一张全景"></button>
         </div>
       </div>
       <p class="pano-help">拖动图片可以进行360°环视，点击箭头浏览下一张图像</p>
       ${nodeSurveyMode
-        ? '<button class="primary" id="nodeSurveyAnswerButton" onclick="openNodeSurveyQuestions()" hidden>浏览完成，填写本节点问卷 →</button>'
+        ? ''
         : studyRunActive
         ? '<p class="pano-help" id="studyViewStatus" role="status">Demo 示例体验：请依次浏览三张全景，再回答两道选择题。</p><button class="primary" id="studyAnswerButton" onclick="showStudyQuestions()" disabled>浏览三张全景后进入答题</button>'
         : studyPreviewNodeId
@@ -1233,6 +1234,10 @@
         defaultLong:scene.longitude||0
       });
       activePanoViewer=viewer;
+      if(nodeSurveyMode){
+        // 控件随播放器进入全屏，最后一张的问卷入口仍可点击。
+        viewer.container.append(document.getElementById('groundNav'),document.getElementById('panoSceneBadge'));
+      }
       viewer.on("load-progress",(...args)=>{
         if(activePanoViewer!==viewer) return;
         const progress=[...args].reverse().find(value=>typeof value==="number");
@@ -1322,7 +1327,10 @@
     if(badge) badge.textContent=`${currentPanoramaSceneIndex+1} / ${tour.length}`;
     if(nav) nav.hidden=tour.length<2;
     if(prev) prev.disabled=currentPanoramaSceneIndex===0;
-    if(next) next.disabled=currentPanoramaSceneIndex===tour.length-1;
+    if(next){
+      next.disabled=currentPanoramaSceneIndex===tour.length-1;
+      next.hidden=nodeSurveyMode&&currentPanoramaSceneIndex===tour.length-1;
+    }
   }
 
   function setPanoramaStartDirection(viewer,scene){
@@ -1528,9 +1536,9 @@
 
   loadAmap();
 </script>
-<script src="assets/flow-settings.js"></script>
+<script src="assets/flow-settings.js?v=map-directions-1"></script>
 <script src="assets/study-entry.js?v=free-stations-1"></script>
-<script src="assets/node-survey.js?v=free-stations-1"></script>
+<script src="assets/node-survey.js?v=survey-cta-1"></script>
 <script src="assets/complete-survey.js"></script>
 </body>
 </html>
