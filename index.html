@@ -1228,12 +1228,16 @@
       const viewer=new PhotoSphereViewer.Viewer({
         container,panorama:panoramaSource,
         navbar:["autorotate","zoom","fullscreen"],
-        mousewheel:true,mousemove:true,
+        mousewheel:true,mousemove:true,moveInertia:false,
         minFov:30,maxFov:92,defaultZoomLvl:18,autorotateZoomLvl:18,
         autorotateDelay:null,autorotateIdle:false,autorotateSpeed:"0.65rpm",
         defaultLong:scene.longitude||0
       });
       activePanoViewer=viewer;
+      pausePanoramaOnInteraction(viewer,()=>{
+        clearTimeout(panoramaAutorotateTimer);
+        panoramaAutorotateTimer=null;
+      });
       if(nodeSurveyMode){
         // 控件随播放器进入全屏，最后一张的问卷入口仍可点击。
         viewer.container.append(document.getElementById('groundNav'),document.getElementById('panoSceneBadge'));
@@ -1256,25 +1260,12 @@
     });
   }
 
-  function browserSupportsWebP(){
-    try{
-      const canvas=document.createElement("canvas");
-      canvas.width=canvas.height=1;
-      return canvas.toDataURL("image/webp").startsWith("data:image/webp");
-    }catch(error){return false}
-  }
-
-  const panoramaWebpSupported=browserSupportsWebP();
   const panoramaConnection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  const useMobilePanorama=window.matchMedia("(max-width: 820px)").matches||
-    Math.min(window.screen.width,window.screen.height)<=820||
-    Boolean(panoramaConnection&&(/2g/.test(panoramaConnection.effectiveType||"")||panoramaConnection.saveData));
   const preloadedPanoramas=new Map();
 
   function getOptimizedPanoramaUrl(url){
-    if(!panoramaWebpSupported||!/^assets\/panoramas\/.+\.jpg(?:\?.*)?$/i.test(url||"")) return url;
-    const suffix=useMobilePanorama?"_mobile.webp":"_desktop.webp";
-    return url.replace(/\.jpg(?=\?|$)/i,suffix);
+    // 漫游直接读取已保存的高清图片，手机与电脑采用同一来源。
+    return url;
   }
 
   function showPanoramaLoading(progress=4){
@@ -1330,6 +1321,17 @@
     if(next){
       next.disabled=currentPanoramaSceneIndex===tour.length-1;
       next.hidden=nodeSurveyMode&&currentPanoramaSceneIndex===tour.length-1;
+    }
+  }
+
+  function pausePanoramaOnInteraction(viewer,cancelPendingRotation){
+    const pause=event=>{
+      if(event.target.closest('.psv--capture-event'))return;
+      cancelPendingRotation();
+      viewer.stopAutorotate();
+    };
+    for(const event of ['pointerdown','touchstart','wheel']){
+      viewer.container.addEventListener(event,pause,{capture:true,passive:true});
     }
   }
 
@@ -1537,8 +1539,8 @@
   loadAmap();
 </script>
 <script src="assets/flow-settings.js?v=map-directions-1"></script>
-<script src="assets/study-entry.js?v=free-stations-1"></script>
+<script src="assets/study-entry.js?v=steady-drag-1"></script>
 <script src="assets/node-survey.js?v=survey-cta-1"></script>
-<script src="assets/complete-survey.js"></script>
+<script src="assets/complete-survey.js?v=steady-drag-1"></script>
 </body>
 </html>

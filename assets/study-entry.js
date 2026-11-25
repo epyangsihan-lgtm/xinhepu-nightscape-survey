@@ -10,6 +10,7 @@
   const modal=document.getElementById('researchModal');
   const card=modal.querySelector('.research-card');
   let active=false;
+  let resumePanoramaRotation=false;
   const stops=document.getElementById('stationStops');
   for(let index=0;index<10;index++){
     const stop=document.createElement('li');stop.dataset.station=String(index);stop.innerHTML=`<button type="button" class="station-dot" aria-label="浏览第${index+1}站">${index+1}</button><span class="station-label">第 ${index+1} 站</span>`;stop.querySelector('button').onclick=()=>window.selectSurveyStation?.(index);stops.appendChild(stop);
@@ -31,8 +32,8 @@
     document.getElementById('stationRail').hidden=phase!==1;
     document.querySelector('.sequence-layout').classList.toggle('phase-two',phase===2);
     [1,2].forEach(number=>{const button=document.getElementById(`studyPhase${number}`);button.setAttribute('aria-pressed',String(number===phase));if(number===phase)button.parentElement.setAttribute('aria-current','step');else button.parentElement.removeAttribute('aria-current');});
-    if(phase===2){activePanoViewer?.stopAutorotate();window.openCompleteSurvey?.();}
-    else{window.pauseCompleteTour?.();if(activePanoViewer)activePanoViewer.startAutorotate();}
+    if(phase===2){resumePanoramaRotation=!!activePanoViewer?.isAutorotateEnabled();activePanoViewer?.stopAutorotate();window.openCompleteSurvey?.();}
+    else{window.pauseCompleteTour?.();if(activePanoViewer&&resumePanoramaRotation)activePanoViewer.startAutorotate();}
   };
   function start(){if(active&&!nodeSurveyMode&&window.startSequentialSurvey)window.startSequentialSurvey();}
   function render(){

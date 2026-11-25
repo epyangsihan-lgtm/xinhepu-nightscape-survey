@@ -3,6 +3,7 @@
   const $=id=>document.getElementById(id);
   let viewer=null,node=null,tour=[],index=0,viewed=new Set(),busy=false,failed=false;
   let active=false,starting=false,generation=0,rotationTimer=null;
+  let resumeRotation=false;
 
   function controls(){
     $('completeSceneBadge').textContent=`${index+1} / ${tour.length}`;
@@ -47,7 +48,7 @@
   }
   window.openCompleteSurvey=async()=>{
     active=true;
-    if(viewer){if(!busy&&!failed)rotate();return;}
+    if(viewer){if(!busy&&!failed&&resumeRotation)viewer.startAutorotate();return;}
     if(starting)return;
     starting=true;const run=generation;
     let config;
@@ -83,15 +84,16 @@
     }
     const instance=new PhotoSphereViewer.Viewer({
       container:$('completePanoViewer'),panorama:getOptimizedPanoramaUrl(tour[0].panoramaUrl),
-      navbar:['autorotate','zoom','fullscreen'],mousewheel:true,mousemove:true,
+      navbar:['autorotate','zoom','fullscreen'],mousewheel:true,mousemove:true,moveInertia:false,
       minFov:30,maxFov:92,defaultZoomLvl:18,autorotateZoomLvl:18,
       autorotateDelay:null,autorotateIdle:false,autorotateSpeed:'0.65rpm',defaultLong:Number(tour[0].longitude)||0
     });
     viewer=instance;
+    pausePanoramaOnInteraction(instance,()=>{clearTimeout(rotationTimer);rotationTimer=null;resumeRotation=false;});
     instance.on('ready',()=>loaded(instance));
     instance.prop.loadingPromise?.catch(()=>error(instance));
   };
-  window.pauseCompleteTour=()=>{active=false;clearTimeout(rotationTimer);viewer?.stopAutorotate();};
+  window.pauseCompleteTour=()=>{resumeRotation=!!viewer?.isAutorotateEnabled();active=false;clearTimeout(rotationTimer);viewer?.stopAutorotate();};
   window.resetCompleteTour=()=>{
     window.pauseCompleteTour();generation++;starting=false;
     const instance=viewer;viewer=null;node=null;tour=[];viewed.clear();
