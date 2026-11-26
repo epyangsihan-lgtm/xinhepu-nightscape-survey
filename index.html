@@ -1265,8 +1265,8 @@
   const preloadedPanoramas=new Map();
 
   function getOptimizedPanoramaUrl(url){
-    // 漫游直接读取已保存的高清图片，手机与电脑采用同一来源。
-    return url;
+    // 质量 95 的 WebP 保持原图像素尺寸，手机与电脑采用同一高清来源。
+    return typeof url==='string'?url.replace(/^(assets\/panoramas\/[^?#]+)\.jpg(?=\?|#|$)/i,'$1_q95.webp'):url;
   }
 
   function showPanoramaLoading(progress=4){
