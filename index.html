@@ -1171,7 +1171,7 @@
         </div>
         <div class="pano-scene-badge" id="panoSceneBadge"></div>
         <div class="ground-nav psv--capture-event" id="groundNav">
-          ${nodeSurveyMode&&node.id===window.studySurveyNodes?.[0]?.id ? '<span class="pano-next-hint" id="panoNextHint">点击前进</span>' : ''}
+          ${nodeSurveyMode&&node.id===window.studySurveyNodes?.[0]?.id ? '<span class="pano-next-hint" id="panoNextHint">点击箭头前进</span>' : ''}
           <button class="ground-arrow next" id="panoNext" type="button" onclick="switchPanoramaScene(1)" aria-label="进入下一张全景" title="进入下一张全景"></button>
           ${nodeSurveyMode ? '<button class="primary pano-survey-action" id="nodeSurveyAnswerButton" type="button" onclick="openNodeSurveyQuestions()" hidden>填写本场景问卷 →</button>' : ''}
           <button class="ground-arrow prev" id="panoPrev" type="button" onclick="switchPanoramaScene(-1)" aria-label="退回上一张全景" title="退回上一张全景"></button>
@@ -1324,7 +1324,7 @@
       next.hidden=nodeSurveyMode&&currentPanoramaSceneIndex===tour.length-1;
     }
     const hint=document.getElementById('panoNextHint');
-    if(hint)hint.hidden=next.disabled||next.hidden;
+    if(hint)hint.hidden=currentPanoramaSceneIndex!==0||next.disabled||next.hidden;
   }
 
   function pausePanoramaOnInteraction(viewer,cancelPendingRotation){
