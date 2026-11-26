@@ -39,7 +39,10 @@
   clear();if(!completed.includes(index))completed.push(index);window.setSurveyStation?.(index,completed);
   const body=$('#researchBody');body.innerHTML='<section class="node-survey-done"><h3>本节点已完成</h3><div id="nextStationAction"></div></section>';
   const button=document.createElement('button');button.className='primary';button.type='button';
-  if(index===config.stations.length-1){button.textContent='进入完整问卷 →';button.onclick=()=>window.selectStudyPhase(2);}
+  if(index===config.stations.length-1){
+   button.textContent=window.completeSurveyEnabled?'进入完整问卷 →':'返回首页';
+   button.onclick=()=>window.completeSurveyEnabled?window.selectStudyPhase(2):closeResearch();
+  }
   else{button.textContent='下一节点 →';button.onclick=()=>openStation(index+1);}
   $('#nextStationAction').appendChild(button);
  }

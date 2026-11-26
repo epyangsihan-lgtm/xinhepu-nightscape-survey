@@ -47,6 +47,7 @@
     }catch{error(instance);}
   }
   window.openCompleteSurvey=async()=>{
+    if(!window.completeSurveyEnabled)return;
     active=true;
     if(viewer){if(!busy&&!failed&&resumeRotation)viewer.startAutorotate();return;}
     if(starting)return;
