@@ -7,15 +7,8 @@
   const requestedActivity=new URLSearchParams(location.search).get('activity');
   const activity=/^[A-Za-z0-9]{3,40}$/.test(requestedActivity||'')?requestedActivity:'tqejcTG';
   document.title=activity==='waEFtBG'?'完整问卷':'节点问卷';
-  let triggered=false;
   function send(type){parent.postMessage({channel:'xinhepu-wjx',activity,nonce,type},location.origin);}
   function observe(frame){if(!frame||frame.dataset.observed)return;frame.dataset.observed='1';frame.addEventListener('load',()=>{document.getElementById('status').hidden=true;send('ready');});}
-  const timer=setInterval(()=>{
-    const frame=document.querySelector('iframe');
-    observe(frame);
-    if(!triggered&&typeof window.wjxiframeboxshow==='function'&&window.jQuery){triggered=true;window.wjxiframeboxshow(3);}
-    else if(!triggered&&document.getElementById('wjxFloatInsertBtn')&&window.jQuery&&window.layer){triggered=true;document.getElementById('wjxFloatInsertBtn').click();}
-  },100);
   window.addEventListener('message',event=>{
     const frame=[...document.querySelectorAll('iframe')].find(frame=>frame.contentWindow===event.source);
     if(!frame)return;
@@ -24,11 +17,10 @@
     if(event.data==='submitSuccess')send('submitted');
     if(event.data==='closeYtyyiframe')send('error');
   });
-  window.addEventListener('pagehide',()=>clearInterval(timer));
-  // 浮动组件的依赖加载失败时，使用其同一问卷地址的标准 iframe 嵌入。
-  setTimeout(()=>{if(document.querySelector('iframe'))return;triggered=true;const frame=document.createElement('iframe');frame.id='wjxiframe_ytyy';frame.title=document.title;observe(frame);frame.src=`https://v.wjx.cn/vm/${activity}.aspx?isytyy=1&ytyyframe=1`;document.body.appendChild(frame);},5000);
-  const script=document.createElement('script');script.type='text/javascript';script.src=`https://www.wjx.cn/js/ap.js?activity=${activity}`;script.id='wjxFloatBtnJsCode';document.body.appendChild(script);
-  setTimeout(()=>{if(!document.querySelector('iframe')){clearInterval(timer);send('error');}},15000);
+  // 使用 jqemed.ashx 官方代码生成的普通网页嵌入地址。
+  const frame=document.createElement('iframe');frame.id='wjxiframe_ytyy';frame.title=document.title;
+  observe(frame);frame.src=`https://v.wjx.cn/vm/${activity}.aspx?width=750&source=iframe`;
+  document.body.appendChild(frame);
 })();
 </script>
 </body></html>
