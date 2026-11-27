@@ -1,12 +1,12 @@
 {
-  "revision": "43c2d28a-3519-4255-9a95-95c6fc45fc1e",
+  "revision": "224ed4f7-419b-482f-bcc8-35f645dbb24b",
   "completeActivity": "waEFtBG",
   "stations": [
     {
       "id": "flow-1",
       "name": "庙前西街东段（署前路路口）",
       "sourceNodeId": "kuiyuan",
-      "activity": "tqejcTG",
+      "activity": "QxeoIvf",
       "scenes": [
         {
           "label": "1-1",
