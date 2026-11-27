@@ -52,9 +52,6 @@
   $('#researchBody').innerHTML='<section class="node-survey-card"><div class="node-survey-frame-wrap"><iframe id="nodeSurveyFrame" title="节点评价问卷" allow="clipboard-write"></iframe><div class="node-survey-loading" id="nodeSurveyLoading">正在加载问卷…</div></div><p class="node-survey-message" id="nodeSurveyMessage" role="status" hidden></p><div class="node-survey-actions"><button type="button" class="secondary" id="nodeSurveyBack">返回全景</button><a id="nodeSurveyExternal" target="_blank" rel="noopener noreferrer">问卷无法显示？↗</a></div></section>';
   nonce=crypto.randomUUID();frame=$('#nodeSurveyFrame');frame.src=`assets/wjx-node.html?activity=${station.activity}&nonce=${nonce}`;
   $('#nodeSurveyExternal').href=`https://v.wjx.cn/vm/${station.activity}.aspx`;
-  const continueButton=document.createElement('button');continueButton.type='button';continueButton.className='primary';continueButton.textContent='已提交，继续 →';
-  continueButton.onclick=finish;
-  $('.node-survey-actions').appendChild(continueButton);
   $('#nodeSurveyBack').onclick=()=>{clear();startResearch(station.id,{studyPreview:true,nodeSurvey:true});};
   timer=setTimeout(()=>{if(!$('#nodeSurveyLoading'))return;$('#nodeSurveyLoading').hidden=true;$('#nodeSurveyMessage').hidden=false;$('#nodeSurveyMessage').textContent='加载较慢，可点击下方链接打开问卷。';},18000);
  };
